@@ -6,7 +6,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@9.1.0
+RUN npm install -g pnpm@9.0.0
 
 # Copy root workspace configurations
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json ./
@@ -33,7 +33,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-RUN npm install -g pnpm@9.1.0
+RUN npm install -g pnpm@9.0.0
 
 # Copy workspace configs
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
@@ -44,10 +44,7 @@ COPY apps/api/tsconfig.json ./apps/api/
 # Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile
 
-# Generate Prisma client for runtime
-RUN pnpm --filter @ministryhub/database db:generate
-
-# Copy compiled build artifacts from builder stage
+# Copy compiled build artifacts and generated Prisma client from builder stage
 COPY --from=builder /app/packages/ ./packages/
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
