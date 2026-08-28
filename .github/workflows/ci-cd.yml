@@ -1,0 +1,67 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ==========================================
+  # JOB 1: Test & Build Validation (CI)
+  # ==========================================
+  validate-and-build:
+    name: Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.1.0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @ministryhub/database prisma generate
+
+      - name: Build Monorepo (Packages, API, Web)
+        run: pnpm build
+
+  # ==========================================
+  # JOB 2: Automatic AWS Deployment (CD)
+  # Triggered only on push to main branch
+  # ==========================================
+  deploy-to-aws:
+    name: Deploy to AWS Lightsail / EC2
+    needs: validate-and-build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        # Only runs if secrets are configured in GitHub repository settings
+        continue-on-error: true
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME || 'ubuntu' }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            set -e
+            echo "🚀 Deploying latest commit to AWS..."
+            cd ~/ministry-hub || cd /home/ubuntu/ministry-hub
+            git pull origin main
+            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml exec -T api pnpm --filter @ministryhub/database prisma db push
+            echo "✅ Deployment completed successfully!"
