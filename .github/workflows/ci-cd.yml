@@ -6,52 +6,68 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_API: ghcr.io/${{ github.repository_owner }}/ministryhub-api
+  IMAGE_WEB: ghcr.io/${{ github.repository_owner }}/ministryhub-web
+
 jobs:
   # ==========================================
-  # JOB 1: Test & Build Validation (CI)
+  # JOB 1: Build & Push Images
   # ==========================================
-  validate-and-build:
-    name: Lint, Typecheck & Build
+  build-and-push:
+    name: Build & Push Docker Images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          version: 9.0.0
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push API Image
+        uses: docker/build-push-action@v5
         with:
-          node-version: 20
-          cache: 'pnpm'
+          context: .
+          file: apps/api/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.IMAGE_API }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma Client
-        run: pnpm --filter @ministryhub/database db:generate
-
-      - name: Build Monorepo (Packages, API, Web)
-        run: pnpm build
+      - name: Build & Push Web Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.IMAGE_WEB }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   # ==========================================
-  # JOB 2: Automatic AWS Deployment (CD)
-  # Triggered only on push to main branch
+  # JOB 2: Deploy to AWS
   # ==========================================
   deploy-to-aws:
-    name: Deploy to AWS Lightsail / EC2
-    needs: validate-and-build
+    name: Deploy to AWS Lightsail
+    needs: build-and-push
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
-        # Only runs if secrets are configured in GitHub repository settings
         continue-on-error: true
         with:
           host: ${{ secrets.AWS_HOST }}
@@ -59,9 +75,21 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
             set -e
-            echo "🚀 Deploying latest commit to AWS..."
-            cd ~/ministry-hub || cd /home/ubuntu/ministry-hub
+            echo "Pulling latest changes and images..."
+            cd ~/ministry-hub
             git pull origin main
-            docker compose -f docker-compose.prod.yml up -d --build
-            docker compose -f docker-compose.prod.yml exec -T api pnpm --filter @ministryhub/database prisma db push
-            echo "✅ Deployment completed successfully!"
+            
+            # Login to GitHub Container Registry to pull images
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Stop the old build process if it's running
+            docker compose -f docker-compose.prod.yml down || true
+            
+            # Pull and start new pre-built images
+            docker compose -f docker-compose.registry.yml pull
+            docker compose -f docker-compose.registry.yml up -d
+            
+            echo "Applying database migrations..."
+            docker compose -f docker-compose.registry.yml exec -T api pnpm --filter @ministryhub/database prisma db push
+            
+            echo "Deployment completed successfully!"

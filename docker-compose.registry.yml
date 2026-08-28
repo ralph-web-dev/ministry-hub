@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ministryhub_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: ministryhub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    image: ghcr.io/ralph-web-dev/ministryhub-api:latest
+    container_name: ministryhub_api
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/ministryhub?schema=public
+      - JWT_SECRET=production_secret_key_change_me
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads_data:/app/apps/api/uploads
+
+  web:
+    image: ghcr.io/ralph-web-dev/ministryhub-web:latest
+    container_name: ministryhub_web
+    restart: always
+    depends_on:
+      - api
+    environment:
+      - VITE_API_URL=http://13.212.217.128/api
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  uploads_data:
