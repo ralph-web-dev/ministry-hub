@@ -33,14 +33,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: npx prisma generate --schema=packages/database/prisma/schema.prisma
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/ministryhub?schema=public"
+        run: pnpm --filter @ministryhub/database db:generate
 
       - name: Build Monorepo (Packages, API, Web)
         run: pnpm build
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/ministryhub?schema=public"
 
   # ==========================================
   # JOB 2: Automatic AWS Deployment (CD)
