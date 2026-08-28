@@ -1,36 +1,39 @@
-# MinistryHub ⛪
+# MinistryHub
 
-A modern, comprehensive church management and member directory platform designed to empower ministry leaders, streamline administrative workflows, and nurture church community engagement.
+A modern church management and member directory platform designed to streamline administrative workflows, manage member records, and support church leadership operations.
 
 ---
 
-## 🚀 Tech Stack
+## Technology Stack
 
 ### Frontend (`apps/web`)
-* **Framework**: [React 18](https://react.dev/) + [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/)
-* **Routing**: [React Router v6](https://reactrouter.com/)
-* **Styling**: Vanilla SCSS with custom design token system
-* **Icons**: [@tabler/icons-react](https://tabler.io/icons)
-* **HTTP Client**: [Axios](https://axios-http.com/)
+* **Framework**: React 18, Vite, TypeScript
+* **Routing**: React Router v6
+* **Styling**: SCSS Design System
+* **Icons**: Tabler Icons (`@tabler/icons-react`)
+* **HTTP Client**: Axios
 
 ### Backend (`apps/api`)
-* **Framework**: [NestJS](https://nestjs.com/) + [TypeScript](https://www.typescriptlang.org/)
-* **ORM**: [Prisma ORM](https://www.prisma.io/)
-* **Database**: PostgreSQL (via Docker) / SQLite
-* **Authentication**: JWT Strategy + Passport
-* **File Storage**: Local Multipart Uploads
+* **Framework**: NestJS, TypeScript
+* **ORM**: Prisma ORM
+* **Database**: PostgreSQL / SQLite
+* **Authentication**: Passport JWT Strategy
+* **File Storage**: Local Multipart Upload Service
 
 ### Monorepo & Shared Packages
-* **Workspace Manager**: [pnpm](https://pnpm.io/) + [Turborepo](https://turbo.build/)
+* **Workspace Management**: pnpm Workspaces, Turborepo
 * **Shared Packages**:
   * `@ministryhub/database`: Prisma schema, client, and seeders
-  * `@ministryhub/types`: Shared TypeScript data models
+  * `@ministryhub/types`: Shared TypeScript interfaces and models
   * `@ministryhub/validation`: Shared validation schemas
-  * `@ministryhub/auth`, `@ministryhub/constants`, `@ministryhub/ui`, `@ministryhub/utils`
+  * `@ministryhub/auth`: Shared authentication utilities
+  * `@ministryhub/constants`: Application constants and enums
+  * `@ministryhub/ui`: Shared UI component primitives
+  * `@ministryhub/utils`: General utility functions
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```text
 ministryhub/
@@ -38,10 +41,10 @@ ministryhub/
 │   ├── api/          # NestJS Backend API
 │   └── web/          # React + Vite Web Application
 ├── packages/
-│   ├── auth/         # Shared auth utilities
+│   ├── auth/         # Shared authentication utilities
 │   ├── constants/    # Global constants & enums
 │   ├── database/     # Prisma schema & migrations
-│   ├── types/        # Shared TypeScript interfaces
+│   ├── types/        # Shared TypeScript data models
 │   ├── ui/           # Shared UI component library
 │   ├── utils/        # Common utility helpers
 │   └── validation/   # Input validation schemas
@@ -53,7 +56,7 @@ ministryhub/
 
 ---
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 * **Node.js**: `v18.x` or higher
@@ -69,7 +72,7 @@ pnpm install
 ```
 
 ### 2. Database Setup
-Initialize and migrate the database:
+Generate and push database migrations:
 ```bash
 # Push schema to database
 pnpm --filter @ministryhub/database prisma db push
@@ -78,8 +81,8 @@ pnpm --filter @ministryhub/database prisma db push
 pnpm --filter @ministryhub/database seed
 ```
 
-### 3. Running in Development
-Start all applications concurrently:
+### 3. Development
+Start the application services in development mode:
 ```bash
 pnpm dev
 ```
@@ -88,5 +91,5 @@ pnpm dev
 
 ---
 
-## 📄 License
-This project is proprietary and confidential. All rights reserved.
+## License
+Proprietary and confidential. All rights reserved.
