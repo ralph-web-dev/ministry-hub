@@ -91,5 +91,41 @@ pnpm dev
 
 ---
 
+## AWS Deployment (Production / Testing)
+
+### Option 1: Single-Instance Deployment (AWS Lightsail or EC2)
+
+1. **Launch an AWS Instance**:
+   * Create an **Ubuntu 22.04 LTS** instance on AWS Lightsail or EC2.
+   * Open Ports `80` (HTTP), `443` (HTTPS), and `22` (SSH) in the instance firewall / Security Group.
+
+2. **Connect and Install Docker**:
+   ```bash
+   ssh ubuntu@<YOUR_INSTANCE_PUBLIC_IP>
+
+   # Install Docker and Docker Compose plugin
+   sudo apt update && sudo apt install -y docker.io docker-compose-plugin
+   sudo usermod -aG docker $USER
+   newgrp docker
+   ```
+
+3. **Clone & Run MinistryHub**:
+   ```bash
+   git clone https://github.com/ralph-web-dev/ministry-hub.git
+   cd ministry-hub
+
+   # Start all production containers
+   docker compose -f docker-compose.prod.yml up -d --build
+
+   # Run Database Migrations & Initial Seed
+   docker compose -f docker-compose.prod.yml exec api pnpm --filter @ministryhub/database prisma db push
+   docker compose -f docker-compose.prod.yml exec api pnpm --filter @ministryhub/database seed
+   ```
+
+4. **Access the Application**:
+   * Open `http://<YOUR_INSTANCE_PUBLIC_IP>` in your browser.
+
+---
+
 ## License
 Proprietary and confidential. All rights reserved.
