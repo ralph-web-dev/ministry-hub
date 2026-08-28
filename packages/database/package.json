@@ -1,0 +1,25 @@
+{
+  "name": "@ministryhub/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "argon2": "^0.40.1",
+    "prisma": "^5.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}

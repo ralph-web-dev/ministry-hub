@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  churches  Church[]
+  users     User[]
+}
+
+model Church {
+  id             String       @id @default(uuid())
+  organizationId String
+  name           String
+  address        String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  members        Member[]
+  users          User[]
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model User {
+  id             String       @id @default(uuid())
+  organizationId String
+  churchId       String?
+  email          String       @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role         @default(STAFF)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  church         Church?      @relation(fields: [churchId], references: [id])
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  TRANSFERRED
+  ARCHIVED
+}
+
+enum BaptismStatus {
+  BAPTIZED
+  NOT_BAPTIZED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Member {
+  id                String           @id @default(uuid())
+  churchId          String
+  memberId          String           @unique
+  profilePictureUrl String?
+  firstName         String
+  middleName        String?
+  lastName          String
+  suffix            String?
+  email             String?
+  phoneNumber       String?
+  dateOfBirth       DateTime?
+  gender            Gender?
+  address           String?
+  membershipStatus  MembershipStatus @default(ACTIVE)
+  dateJoined        DateTime?
+  baptismStatus     BaptismStatus    @default(NOT_BAPTIZED)
+  baptismDate       DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  church           Church           @relation(fields: [churchId], references: [id])
+}

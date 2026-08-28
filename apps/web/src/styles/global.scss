@@ -1,0 +1,148 @@
+@import './variables.scss';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #283E58;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ============================================================
+   GLOBAL BUTTON SYSTEM (Matching Logo Color Scheme)
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: inherit;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  /* ----- Primary: #283E58 Logo Navy ----- */
+  &.btn-primary {
+    background-color: #283E58;
+    color: #FFFFFF;
+    border-color: #283E58;
+
+    &:hover {
+      background-color: #1B2A3C;
+      border-color: #1B2A3C;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+      background-color: #161F30;
+    }
+  }
+
+  /* ----- Secondary / Outline ----- */
+  &.btn-secondary,
+  &.btn-outline {
+    background-color: #FFFFFF;
+    color: #283E58;
+    border-color: var(--border-color);
+
+    &:hover {
+      background-color: var(--surface-2);
+      border-color: #b5bec7;
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  /* ----- Danger Outline ----- */
+  &.btn-outline.danger {
+    color: var(--color-danger);
+    border-color: #fca5a5;
+    background-color: #FFFFFF;
+
+    &:hover {
+      background-color: var(--color-danger-bg);
+      border-color: var(--color-danger);
+    }
+  }
+
+  /* ----- Text / Ghost ----- */
+  &.btn-text {
+    background: none;
+    border-color: transparent;
+    color: var(--text-muted);
+    padding-left: 4px;
+    padding-right: 4px;
+
+    &:hover {
+      color: #283E58;
+      background-color: rgba(40, 62, 88, 0.06);
+    }
+
+    &.danger {
+      color: var(--color-danger);
+      &:hover {
+        background-color: var(--color-danger-bg);
+      }
+    }
+  }
+
+  /* ----- Accent: #698C8B Logo Accent ----- */
+  &.btn-accent {
+    background-color: #698C8B;
+    color: #FFFFFF;
+    border-color: #698C8B;
+
+    &:hover {
+      background-color: #577574;
+      border-color: #577574;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+  }
+
+  /* ----- Sizes ----- */
+  &.btn-sm {
+    padding: 6px 13px;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+  }
+
+  &.btn-lg {
+    padding: 12px 26px;
+    font-size: 15px;
+  }
+}

@@ -1,0 +1,549 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  padding: 28px 36px 48px 36px;
+  gap: 22px;
+  max-width: 1560px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* ============================================================
+     MORE BUTTON (Matching Logo Navy Accent)
+     ============================================================ */
+  .more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #283E58;
+    margin-top: auto;
+    width: fit-content;
+    transition: all 0.2s ease;
+
+    .more-arrow-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #283E58;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(40, 62, 88, 0.25);
+
+      svg {
+        width: 15px;
+        height: 15px;
+      }
+    }
+
+    &:hover {
+      color: #161F30;
+
+      .more-arrow-circle {
+        transform: translateX(2px);
+        background-color: #161F30;
+      }
+    }
+  }
+
+  /* ============================================================
+     TOP GRID (Hero Card on left + 3 Stacked Cards on right)
+     ============================================================ */
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 22px;
+    align-items: stretch;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---- HERO CARD (Logo Navy Deep Theme) ---- */
+  .hero-analytics-card {
+    background: linear-gradient(135deg, #283E58 0%, #161F30 100%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 8px 24px rgba(22, 31, 48, 0.18);
+    position: relative;
+    overflow: visible;
+
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      .hero-greeting {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0 0 6px 0;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+      }
+
+      .hero-subtitle {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 0;
+      }
+
+      .time-filter-pills {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+        padding: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+
+        .pill-btn {
+          background: transparent;
+          border: none;
+          color: #cbd5e1;
+          padding: 7px 16px;
+          font-size: 13px;
+          font-weight: 600;
+          border-radius: 9999px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: inherit;
+
+          &.active {
+            background: #ffffff;
+            color: #283E58;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          }
+
+          &:hover:not(.active) {
+            color: #ffffff;
+          }
+        }
+      }
+    }
+
+    /* ---- Chart Area ---- */
+    .chart-container {
+      display: flex;
+      gap: 18px;
+      height: 220px;
+      margin-top: 10px;
+
+      .chart-y-axis {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #94a3b8;
+        font-size: 11.5px;
+        font-weight: 500;
+        padding-bottom: 26px;
+      }
+
+      .chart-bars-area {
+        flex: 1;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+
+        .grid-line {
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .bars-row {
+          flex: 1;
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          padding-bottom: 26px;
+          position: relative;
+          z-index: 1;
+          gap: 6px;
+
+          .bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            position: relative;
+
+            .bars-pair {
+              display: flex;
+              align-items: flex-end;
+              gap: 4px;
+              height: 100%;
+              width: 100%;
+              justify-content: center;
+            }
+
+            .bar {
+              border-radius: 4px 4px 0 0;
+              transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+              cursor: pointer;
+
+              &.bar-attendance {
+                width: 8px;
+                background-color: #60a5fa;
+              }
+
+              &.bar-guests {
+                width: 6px;
+                background-color: #698C8B;
+              }
+
+              &:hover {
+                opacity: 0.85;
+              }
+            }
+
+            .bar-label {
+              position: absolute;
+              bottom: -24px;
+              font-size: 11.5px;
+              color: #94a3b8;
+              font-weight: 500;
+            }
+
+            &.highlighted {
+              .bar.bar-attendance {
+                background-color: #93c5fd;
+                box-shadow: 0 0 12px rgba(147, 197, 253, 0.5);
+              }
+            }
+          }
+        }
+
+        /* Tooltip */
+        .chart-tooltip {
+          position: absolute;
+          bottom: calc(100% - 20px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: #ffffff;
+          color: #1e293b;
+          padding: 9px 14px;
+          border-radius: 11px;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+          font-size: 12px;
+          white-space: nowrap;
+          z-index: 20;
+
+          .tooltip-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #283E58;
+          }
+
+          .tooltip-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 3px;
+            color: #475569;
+
+            strong {
+              color: #0f172a;
+            }
+
+            .dot {
+              width: 7px;
+              height: 7px;
+              border-radius: 50%;
+
+              &.dot-blue {
+                background: #60a5fa;
+              }
+              &.dot-coral {
+                background: #698C8B;
+              }
+            }
+          }
+
+          .tooltip-pointer {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #ffffff;
+          }
+        }
+      }
+    }
+  }
+
+  /* ---- RIGHT COLUMN STACKED CARDS ---- */
+  .side-metric-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    justify-content: space-between;
+
+    .stack-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 125px;
+      box-shadow: 0 1px 3px rgba(22, 31, 48, 0.04);
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 4px 14px rgba(22, 31, 48, 0.07);
+        border-color: #cbd5e1;
+      }
+
+      .stack-card-title {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .stack-card-main {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin-bottom: 12px;
+
+        .stack-number {
+          font-size: 34px;
+          font-weight: 700;
+          color: #283E58;
+          line-height: 1;
+          letter-spacing: -0.03em;
+        }
+
+        .stack-desc {
+          font-size: 13px;
+          color: #64748b;
+          line-height: 1.35;
+        }
+      }
+
+      &.campus-card {
+        .campus-info-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 12px;
+
+          .campus-info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .campus-icon {
+              color: #698C8B;
+              display: flex;
+              align-items: center;
+              flex-shrink: 0;
+
+              svg {
+                width: 17px;
+                height: 17px;
+              }
+            }
+
+            .campus-text {
+              font-size: 13px;
+              color: #475569;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* ============================================================
+     BOTTOM 4-CARD GRID
+     ============================================================ */
+  .bottom-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+
+    .bottom-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      min-height: 235px;
+      box-shadow: 0 1px 3px rgba(22, 31, 48, 0.04);
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 4px 14px rgba(22, 31, 48, 0.07);
+        border-color: #cbd5e1;
+      }
+
+      .bottom-card-title {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        display: block;
+        margin-bottom: 14px;
+      }
+
+      /* Card 1 Schedule styling */
+      .schedule-body {
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+        margin-bottom: 14px;
+
+        .big-stat-number {
+          font-size: 48px;
+          font-weight: 700;
+          color: #283E58;
+          line-height: 1;
+          letter-spacing: -0.03em;
+        }
+
+        .schedule-list {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+
+          .schedule-item {
+            background: #f8fafc;
+            border-radius: 9px;
+            padding: 6px 10px;
+            border: 1px solid #edf2f7;
+
+            .schedule-name {
+              font-size: 12px;
+              font-weight: 600;
+              color: #283E58;
+            }
+
+            .schedule-time {
+              font-size: 11px;
+              color: #64748b;
+            }
+          }
+        }
+      }
+
+      /* Card 2 Ranked list */
+      .top-list-body {
+        margin-bottom: 14px;
+
+        .ranked-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+
+          li {
+            font-size: 13px;
+            color: #334155;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+
+      /* Card 3 Membership */
+      .membership-stat-group {
+        margin-bottom: 12px;
+
+        .big-stat-number {
+          font-size: 34px;
+          font-weight: 700;
+          color: #283E58;
+          line-height: 1;
+          letter-spacing: -0.02em;
+          margin-top: 4px;
+        }
+
+        &.second {
+          margin-top: 8px;
+          padding-top: 10px;
+          border-top: 1px solid #f1f5f9;
+        }
+      }
+
+      /* Card 4 Giving */
+      .giving-stat-group {
+        margin-bottom: 12px;
+
+        .giving-amount {
+          font-size: 30px;
+          font-weight: 700;
+          color: #283E58;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+
+          &.prev {
+            font-size: 26px;
+            color: #475569;
+          }
+        }
+
+        .giving-subtext {
+          font-size: 12px;
+          color: #64748b;
+          display: block;
+          margin-top: 2px;
+        }
+
+        &.second {
+          margin-top: 8px;
+          padding-top: 10px;
+          border-top: 1px solid #f1f5f9;
+        }
+      }
+    }
+  }
+}
