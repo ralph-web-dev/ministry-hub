@@ -33,21 +33,15 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-RUN npm install -g pnpm@9.0.0
+
+# Copy everything from builder (node_modules includes generated .prisma client)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 # Copy workspace configs
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
-COPY packages/ ./packages/
+COPY package.json pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
-COPY apps/api/tsconfig.json ./apps/api/
-
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
-
-# Copy compiled build artifacts and generated Prisma client from builder stage
-COPY --from=builder /app/packages/ ./packages/
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Create uploads directory
 RUN mkdir -p /app/apps/api/uploads
