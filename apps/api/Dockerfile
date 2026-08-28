@@ -34,6 +34,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install openssl for Prisma engine
+RUN apk add --no-cache openssl
+
 # Copy everything from builder (node_modules includes generated .prisma client)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
