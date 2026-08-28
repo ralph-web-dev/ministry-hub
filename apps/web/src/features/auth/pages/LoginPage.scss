@@ -21,21 +21,23 @@
 .logo-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 0px;
+  margin-bottom: 20px;
 
   img {
-    width: 280px;
-    height: auto;
-    max-width: 100%;
+    width: auto;
+    height: 68px;
+    max-width: 240px;
+    object-fit: contain;
   }
 }
 
 .login-headings {
   text-align: center;
+  margin-top: 0px;
   margin-bottom: 24px;
 
   h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--primary-color);
     margin: 0;

@@ -1,12 +1,22 @@
 .dashboard-page {
   display: flex;
   flex-direction: column;
-  padding: 28px 36px 48px 36px;
-  gap: 22px;
-  max-width: 1560px;
+  padding: 32px 40px 56px 40px;
+  gap: 24px;
+  max-width: 1600px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+
+  @media (max-width: 1024px) {
+    padding: 24px 20px 48px 20px;
+    gap: 20px;
+  }
+
+  @media (max-width: 640px) {
+    padding: 16px 12px 36px 12px;
+    gap: 16px;
+  }
 
   /* ============================================================
      MORE BUTTON (Matching Logo Navy Accent)
@@ -20,7 +30,7 @@
     padding: 0;
     cursor: pointer;
     font-family: inherit;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 600;
     color: #283E58;
     margin-top: auto;
@@ -28,8 +38,8 @@
     transition: all 0.2s ease;
 
     .more-arrow-circle {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background-color: #283E58;
       color: #ffffff;
@@ -40,8 +50,8 @@
       box-shadow: 0 2px 6px rgba(40, 62, 88, 0.25);
 
       svg {
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
       }
     }
 
@@ -60,20 +70,21 @@
      ============================================================ */
   .top-grid {
     display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 22px;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
     align-items: stretch;
 
     @media (max-width: 1200px) {
       grid-template-columns: 1fr;
+      gap: 20px;
     }
   }
 
   /* ---- HERO CARD (Logo Navy Deep Theme) ---- */
   .hero-analytics-card {
     background: linear-gradient(135deg, #283E58 0%, #161F30 100%);
-    border-radius: 20px;
-    padding: 32px 36px;
+    border-radius: 22px;
+    padding: 34px 40px;
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -82,29 +93,50 @@
     position: relative;
     overflow: visible;
 
+    @media (max-width: 1024px) {
+      padding: 26px 28px;
+    }
+
+    @media (max-width: 640px) {
+      padding: 20px 16px;
+      border-radius: 18px;
+    }
+
     .hero-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 24px;
+      margin-bottom: 26px;
       gap: 16px;
       flex-wrap: wrap;
 
+      @media (max-width: 640px) {
+        margin-bottom: 16px;
+      }
+
       .hero-greeting {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 700;
         margin: 0 0 6px 0;
         color: #ffffff;
         letter-spacing: -0.02em;
+
+        @media (max-width: 640px) {
+          font-size: 21px;
+        }
       }
 
       .hero-subtitle {
-        font-size: 11.5px;
+        font-size: 12px;
         font-weight: 600;
         color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin: 0;
+
+        @media (max-width: 640px) {
+          font-size: 10.5px;
+        }
       }
 
       .time-filter-pills {
@@ -118,13 +150,18 @@
           background: transparent;
           border: none;
           color: #cbd5e1;
-          padding: 7px 16px;
-          font-size: 13px;
+          padding: 7px 18px;
+          font-size: 13.5px;
           font-weight: 600;
           border-radius: 9999px;
           cursor: pointer;
           transition: all 0.2s ease;
           font-family: inherit;
+
+          @media (max-width: 640px) {
+            padding: 5px 12px;
+            font-size: 12px;
+          }
 
           &.active {
             background: #ffffff;
@@ -142,22 +179,36 @@
     /* ---- Chart Area ---- */
     .chart-container {
       display: flex;
-      gap: 18px;
-      height: 220px;
-      margin-top: 10px;
+      gap: 20px;
+      height: 230px;
+      margin-top: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+
+      @media (max-width: 640px) {
+        height: 200px;
+        gap: 12px;
+      }
 
       .chart-y-axis {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         color: #94a3b8;
-        font-size: 11.5px;
+        font-size: 12px;
         font-weight: 500;
         padding-bottom: 26px;
+        flex-shrink: 0;
+
+        @media (max-width: 640px) {
+          font-size: 10.5px;
+        }
       }
 
       .chart-bars-area {
         flex: 1;
+        min-width: 320px;
         position: relative;
         display: flex;
         flex-direction: column;
@@ -192,25 +243,33 @@
             .bars-pair {
               display: flex;
               align-items: flex-end;
-              gap: 4px;
+              gap: 3px;
               height: 100%;
               width: 100%;
               justify-content: center;
             }
 
             .bar {
-              border-radius: 4px 4px 0 0;
+              border-radius: 3px 3px 0 0;
               transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
               cursor: pointer;
 
               &.bar-attendance {
                 width: 8px;
                 background-color: #60a5fa;
+
+                @media (max-width: 640px) {
+                  width: 6px;
+                }
               }
 
               &.bar-guests {
                 width: 6px;
                 background-color: #698C8B;
+
+                @media (max-width: 640px) {
+                  width: 4px;
+                }
               }
 
               &:hover {
@@ -221,9 +280,13 @@
             .bar-label {
               position: absolute;
               bottom: -24px;
-              font-size: 11.5px;
+              font-size: 12px;
               color: #94a3b8;
               font-weight: 500;
+
+              @media (max-width: 640px) {
+                font-size: 10.5px;
+              }
             }
 
             &.highlighted {
@@ -238,17 +301,22 @@
         /* Tooltip */
         .chart-tooltip {
           position: absolute;
-          bottom: calc(100% - 20px);
+          bottom: calc(100% - 18px);
           left: 50%;
           transform: translateX(-50%);
           background: #ffffff;
           color: #1e293b;
-          padding: 9px 14px;
-          border-radius: 11px;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-          font-size: 12px;
+          padding: 10px 16px;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+          font-size: 12.5px;
           white-space: nowrap;
           z-index: 20;
+
+          @media (max-width: 640px) {
+            padding: 6px 10px;
+            font-size: 11px;
+          }
 
           .tooltip-title {
             font-weight: 700;
@@ -259,7 +327,7 @@
           .tooltip-row {
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             margin-top: 3px;
             color: #475569;
 
@@ -301,20 +369,36 @@
   .side-metric-stack {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
     justify-content: space-between;
+
+    @media (max-width: 1200px) {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
 
     .stack-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 20px 24px;
+      border-radius: 20px;
+      padding: 22px 28px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 125px;
+      min-height: 130px;
       box-shadow: 0 1px 3px rgba(22, 31, 48, 0.04);
       transition: all 0.2s ease;
+
+      @media (max-width: 640px) {
+        padding: 18px 20px;
+        border-radius: 16px;
+      }
 
       &:hover {
         box-shadow: 0 4px 14px rgba(22, 31, 48, 0.07);
@@ -338,17 +422,25 @@
         margin-bottom: 12px;
 
         .stack-number {
-          font-size: 34px;
+          font-size: 36px;
           font-weight: 700;
           color: #283E58;
           line-height: 1;
           letter-spacing: -0.03em;
+
+          @media (max-width: 640px) {
+            font-size: 30px;
+          }
         }
 
         .stack-desc {
-          font-size: 13px;
+          font-size: 13.5px;
           color: #64748b;
           line-height: 1.35;
+
+          @media (max-width: 640px) {
+            font-size: 12.5px;
+          }
         }
       }
 
@@ -356,7 +448,7 @@
         .campus-info-list {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 9px;
           margin-bottom: 12px;
 
           .campus-info-item {
@@ -371,13 +463,13 @@
               flex-shrink: 0;
 
               svg {
-                width: 17px;
-                height: 17px;
+                width: 18px;
+                height: 18px;
               }
             }
 
             .campus-text {
-              font-size: 13px;
+              font-size: 13.5px;
               color: #475569;
               white-space: nowrap;
               overflow: hidden;
@@ -395,25 +487,33 @@
   .bottom-metrics-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 22px;
+    gap: 24px;
 
     @media (max-width: 1200px) {
       grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
     }
     @media (max-width: 640px) {
       grid-template-columns: 1fr;
+      gap: 14px;
     }
 
     .bottom-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 22px 24px;
+      border-radius: 20px;
+      padding: 24px 28px;
       display: flex;
       flex-direction: column;
-      min-height: 235px;
+      min-height: 245px;
       box-shadow: 0 1px 3px rgba(22, 31, 48, 0.04);
       transition: all 0.2s ease;
+
+      @media (max-width: 640px) {
+        padding: 20px 20px;
+        min-height: 210px;
+        border-radius: 16px;
+      }
 
       &:hover {
         box-shadow: 0 4px 14px rgba(22, 31, 48, 0.07);
@@ -421,7 +521,7 @@
       }
 
       .bottom-card-title {
-        font-size: 11.5px;
+        font-size: 12px;
         font-weight: 700;
         color: #64748b;
         text-transform: uppercase;
@@ -438,33 +538,37 @@
         margin-bottom: 14px;
 
         .big-stat-number {
-          font-size: 48px;
+          font-size: 52px;
           font-weight: 700;
           color: #283E58;
           line-height: 1;
           letter-spacing: -0.03em;
+
+          @media (max-width: 640px) {
+            font-size: 42px;
+          }
         }
 
         .schedule-list {
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 7px;
+          gap: 8px;
 
           .schedule-item {
             background: #f8fafc;
-            border-radius: 9px;
-            padding: 6px 10px;
+            border-radius: 10px;
+            padding: 7px 12px;
             border: 1px solid #edf2f7;
 
             .schedule-name {
-              font-size: 12px;
+              font-size: 12.5px;
               font-weight: 600;
               color: #283E58;
             }
 
             .schedule-time {
-              font-size: 11px;
+              font-size: 11.5px;
               color: #64748b;
             }
           }
@@ -481,10 +585,10 @@
           margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 7px;
+          gap: 8px;
 
           li {
-            font-size: 13px;
+            font-size: 13.5px;
             color: #334155;
             font-weight: 500;
             white-space: nowrap;
@@ -499,12 +603,16 @@
         margin-bottom: 12px;
 
         .big-stat-number {
-          font-size: 34px;
+          font-size: 36px;
           font-weight: 700;
           color: #283E58;
           line-height: 1;
           letter-spacing: -0.02em;
           margin-top: 4px;
+
+          @media (max-width: 640px) {
+            font-size: 30px;
+          }
         }
 
         &.second {
@@ -519,20 +627,28 @@
         margin-bottom: 12px;
 
         .giving-amount {
-          font-size: 30px;
+          font-size: 32px;
           font-weight: 700;
           color: #283E58;
           line-height: 1.1;
           letter-spacing: -0.02em;
 
-          &.prev {
+          @media (max-width: 640px) {
             font-size: 26px;
+          }
+
+          &.prev {
+            font-size: 28px;
             color: #475569;
+
+            @media (max-width: 640px) {
+              font-size: 22px;
+            }
           }
         }
 
         .giving-subtext {
-          font-size: 12px;
+          font-size: 12.5px;
           color: #64748b;
           display: block;
           margin-top: 2px;
