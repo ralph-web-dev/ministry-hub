@@ -2,7 +2,8 @@
   "name": "@ministryhub/database",
   "version": "1.0.0",
   "private": true,
-  "main": "src/index.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
