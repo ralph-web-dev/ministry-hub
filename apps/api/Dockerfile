@@ -18,9 +18,8 @@ COPY apps/api/ ./apps/api/
 # Install all workspace dependencies
 RUN pnpm install --frozen-lockfile
 
-# Generate Prisma Client globally for the monorepo
-RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
-RUN pnpm --filter @ministryhub/database build
+# Generate Prisma Client & Build shared packages
+RUN pnpm --filter @ministryhub/database db:generate
 RUN pnpm --filter "./packages/*" build
 
 # Build API application
@@ -46,7 +45,7 @@ COPY apps/api/tsconfig.json ./apps/api/
 RUN pnpm install --prod --frozen-lockfile
 
 # Generate Prisma client for runtime
-RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
+RUN pnpm --filter @ministryhub/database db:generate
 
 # Copy compiled build artifacts from builder stage
 COPY --from=builder /app/packages/ ./packages/
