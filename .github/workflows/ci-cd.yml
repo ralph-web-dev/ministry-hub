@@ -90,6 +90,6 @@ jobs:
             docker compose -f docker-compose.registry.yml up -d
             
             echo "Applying database migrations..."
-            docker compose -f docker-compose.registry.yml exec -T api pnpm --filter @ministryhub/database prisma db push
+            docker compose -f docker-compose.registry.yml exec -T -w /app/packages/database api npx prisma db push
             
             echo "Deployment completed successfully!"
