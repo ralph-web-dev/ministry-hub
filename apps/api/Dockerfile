@@ -37,6 +37,7 @@ ENV NODE_ENV=production
 # Copy everything from builder (node_modules includes generated .prisma client)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 # Copy workspace configs
