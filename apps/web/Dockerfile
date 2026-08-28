@@ -19,7 +19,8 @@ COPY apps/web/ ./apps/web/
 RUN pnpm install --frozen-lockfile
 
 # Generate Prisma Client & Build shared packages
-RUN pnpm --filter @ministryhub/database prisma generate
+RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
+RUN pnpm --filter @ministryhub/database build
 RUN pnpm --filter "./packages/*" build
 
 # Build Web Application
