@@ -23,13 +23,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on mount
+
     const checkAuth = async () => {
+      const storedToken = localStorage.getItem('ministryhub_token');
+      if (!storedToken) {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const response = await api.get('/auth/me');
         setUser(response.data);
       } catch (error) {
-        // Not authenticated
+
+        setAccessToken('');
         setUser(null);
       } finally {
         setIsLoading(false);

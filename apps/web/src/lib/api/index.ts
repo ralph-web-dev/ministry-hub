@@ -48,7 +48,11 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized / Session Expired
     if (status === 401) {
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+      const requestUrl = error.config?.url || '';
+      const isAuthEndpoint = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/me');
+
+      // Only redirect with expired banner if user was logged in on a protected page
+      if (!isAuthEndpoint && accessToken && typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         setAccessToken('');
         toast.error('Session expired. Please sign in.');
         window.location.href = '/login?expired=true';

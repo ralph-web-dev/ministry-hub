@@ -212,20 +212,6 @@ export function MemberFormPage() {
             {id ? 'Update the details for this church member.' : 'Fill in the information below to add a new member to the ministry directory.'}
           </p>
         </div>
-
-        <div className="header-actions">
-          <button type="button" className="btn btn-outline" onClick={() => navigate('/members')}>
-            Cancel
-          </button>
-          <button 
-            type="button" 
-            className="btn btn-primary" 
-            onClick={() => handleSubmit()} 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Saving...' : id ? 'Update Member' : 'Save Member'}
-          </button>
-        </div>
       </div>
 
       {/* ================= MAIN FORM CARD ================= */}

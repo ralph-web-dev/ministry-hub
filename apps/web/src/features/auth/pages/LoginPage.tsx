@@ -29,7 +29,7 @@ export function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [searchParams] = useSearchParams();
   const isSessionExpired = searchParams.get('expired') === 'true';
 
@@ -59,27 +59,19 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    
+
     if (!validate()) return;
-    
+
     setIsLoading(true);
 
     try {
-      let encryptedPayload: string | undefined;
-      try {
-        encryptedPayload = await encryptPayload({
-          email: email.trim(),
-          password,
-        });
-      } catch (e) {
-        // Ignore encryption error fallback to plain
-      }
 
-      const response = await api.post('/auth/login', { 
+      const encryptedPayload = await encryptPayload({
         email: email.trim(),
         password,
-        ...(encryptedPayload ? { payload: encryptedPayload } : {}),
       });
+
+      const response = await api.post('/auth/login', { payload: encryptedPayload });
       login(response.data.accessToken, response.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
@@ -102,84 +94,84 @@ export function LoginPage() {
         <div className="logo-wrapper">
           <img src="/logo.svg" alt="MINISTRY HUB Logo" />
         </div>
-        
+
         <div className="login-headings">
           <h1>Welcome back</h1>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
-            {errorMessage && (
-              <div className={`error-alert ${isSessionExpired ? 'session-expired-alert' : ''}`} role="alert">
-                <div className="alert-icon">
-                  {isSessionExpired ? <IconAlertTriangle size={18} /> : <IconAlertCircle size={18} />}
-                </div>
-                <div className="alert-text">
-                  <strong>{isSessionExpired ? 'Session Expired' : 'Unable to sign in'}</strong>
-                  <p>{errorMessage}</p>
-                </div>
+          {errorMessage && (
+            <div className={`error-alert ${isSessionExpired ? 'session-expired-alert' : ''}`} role="alert">
+              <div className="alert-icon">
+                {isSessionExpired ? <IconAlertTriangle size={18} /> : <IconAlertCircle size={18} />}
               </div>
-            )}
-            
-            <div className="form-group">
-              <label htmlFor="email">Email address</label>
+              <div className="alert-text">
+                <strong>{isSessionExpired ? 'Session Expired' : 'Unable to sign in'}</strong>
+                <p>{errorMessage}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="email">Email address</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setFieldErrors(p => ({ ...p, email: undefined }));
+                setErrorMessage(null);
+              }}
+              placeholder="admin@ministryhub.com"
+              aria-invalid={!!fieldErrors.email}
+              disabled={isLoading}
+            />
+            {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input-wrapper">
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => { 
-                  setEmail(e.target.value); 
-                  setFieldErrors(p => ({ ...p, email: undefined })); 
-                  setErrorMessage(null); 
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setFieldErrors(p => ({ ...p, password: undefined }));
+                  setErrorMessage(null);
                 }}
-                placeholder="admin@ministryhub.com"
-                aria-invalid={!!fieldErrors.email}
+                placeholder="••••••••"
+                aria-invalid={!!fieldErrors.password}
                 disabled={isLoading}
               />
-              {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                disabled={isLoading}
+              >
+                <EyeIcon visible={showPassword} />
+              </button>
             </div>
+            {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <div className="password-input-wrapper">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => { 
-                    setPassword(e.target.value); 
-                    setFieldErrors(p => ({ ...p, password: undefined })); 
-                    setErrorMessage(null); 
-                  }}
-                  placeholder="••••••••"
-                  aria-invalid={!!fieldErrors.password}
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  disabled={isLoading}
-                >
-                  <EyeIcon visible={showPassword} />
-                </button>
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? (
+              <div className="submit-btn-spinner-wrap">
+                <span className="btn-spinner"></span>
+                <span>Signing in...</span>
               </div>
-              {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
-            </div>
+            ) : (
+              'Sign in'
+            )}
+          </button>
+        </form>
+      </div>
 
-            <button type="submit" className="submit-button" disabled={isLoading}>
-              {isLoading ? (
-                <div className="submit-btn-spinner-wrap">
-                  <span className="btn-spinner"></span>
-                  <span>Signing in...</span>
-                </div>
-              ) : (
-                'Sign in'
-              )}
-            </button>
-          </form>
-        </div>
-      
       <footer className="login-footer">
         © 2026 Ministry Hub · All rights reserved
       </footer>
