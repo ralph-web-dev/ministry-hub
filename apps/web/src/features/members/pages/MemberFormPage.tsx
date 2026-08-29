@@ -87,17 +87,26 @@ export function MemberFormPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Instant local preview
+    const previewUrl = URL.createObjectURL(file);
+    setProfilePictureUrl(previewUrl);
+
     setIsUploadingPhoto(true);
     try {
       const url = await membersApi.uploadProfilePicture(file);
       setProfilePictureUrl(url);
-      toast.success('Photo uploaded');
+      toast.success('Photo uploaded successfully');
     } catch (error: any) {
       console.error('Failed to upload image', error);
       const msg = error?.response?.data?.message || 'Failed to upload photo';
       toast.error(msg);
+      setProfilePictureUrl('');
     } finally {
       setIsUploadingPhoto(false);
+      // Reset input value so re-selecting same file works
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 

@@ -5,7 +5,7 @@
 export function getMediaUrl(path: string | null | undefined): string {
   if (!path) return '';
 
-  // If path is already a full URL or data URI, return as-is
+  // If path is already a full URL or data/blob URI, return as-is
   if (
     path.startsWith('http://') ||
     path.startsWith('https://') ||
@@ -15,13 +15,20 @@ export function getMediaUrl(path: string | null | undefined): string {
     return path;
   }
 
-  // Check for custom backend URL from environment
-  const apiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
-  if (apiUrl) {
-    return `${apiUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+  // If VITE_API_URL is configured with full protocol, extract origin
+  const rawApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, '') || '';
+  if (rawApiUrl && (rawApiUrl.startsWith('http://') || rawApiUrl.startsWith('https://'))) {
+    try {
+      const urlObj = new URL(rawApiUrl);
+      return `${urlObj.origin}${cleanPath}`;
+    } catch {
+      const hostOnly = rawApiUrl.replace(/\/api(\/v\d+)?$/, '');
+      return `${hostOnly}${cleanPath}`;
+    }
   }
 
-  // In development Vite proxy handles /uploads, in production relative path works on same-domain
-  return path;
+  // Relative path works with Nginx reverse proxy in production and Vite proxy in dev
+  return cleanPath;
 }
