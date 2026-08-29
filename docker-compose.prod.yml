@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ministryhub_secure_pwd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
       POSTGRES_DB: ${POSTGRES_DB:-ministryhub}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -31,7 +31,7 @@ services:
     restart: always
     environment:
       PORT: 3000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-ministryhub_secure_pwd}@postgres:5432/${POSTGRES_DB:-ministryhub}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-ministryhub}?schema=public
       JWT_SECRET: ${JWT_SECRET:-ministryhub_jwt_secret_key_prod_2026}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
     volumes:
