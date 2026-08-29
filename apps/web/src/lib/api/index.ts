@@ -2,10 +2,21 @@ import axios, { InternalAxiosRequestConfig } from 'axios';
 import { API_PREFIX } from '@ministryhub/constants';
 import { toast } from '@/components/ui/Toast';
 
-const apiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
+const rawApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, '') || '';
+let resolvedBaseUrl = API_PREFIX;
+
+if (rawApiUrl) {
+  if (rawApiUrl.endsWith(API_PREFIX)) {
+    resolvedBaseUrl = rawApiUrl;
+  } else if (rawApiUrl.endsWith('/api')) {
+    resolvedBaseUrl = `${rawApiUrl}/v1`;
+  } else {
+    resolvedBaseUrl = `${rawApiUrl}${API_PREFIX}`;
+  }
+}
 
 export const api = axios.create({
-  baseURL: apiUrl ? `${apiUrl}${API_PREFIX}` : API_PREFIX,
+  baseURL: resolvedBaseUrl,
   withCredentials: true, // for HTTP-only cookies
 });
 
