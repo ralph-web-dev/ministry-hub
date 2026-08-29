@@ -65,13 +65,24 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-
-      const encryptedPayload = await encryptPayload({
+      let requestData: any = {
         email: email.trim(),
         password,
-      });
+      };
 
-      const response = await api.post('/auth/login', { payload: encryptedPayload });
+      try {
+        const encryptedPayload = await encryptPayload({
+          email: email.trim(),
+          password,
+        });
+        if (encryptedPayload) {
+          requestData = { payload: encryptedPayload };
+        }
+      } catch {
+        // Fallback for non-HTTPS browser origins where WebCrypto subtle is disabled
+      }
+
+      const response = await api.post('/auth/login', requestData);
       login(response.data.accessToken, response.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
