@@ -11,6 +11,9 @@ import {
   IconBuildingChurch
 } from '@tabler/icons-react';
 import { membersApi, MemberResponse } from '../api/members';
+import { getMediaUrl } from '@/utils/media';
+import { ProfileSkeleton } from '@/components/ui/Skeleton';
+import { toast } from '@/components/ui/Toast';
 import './MemberProfilePage.scss';
 
 export function MemberProfilePage() {
@@ -28,6 +31,7 @@ export function MemberProfilePage() {
         }
       } catch (error) {
         console.error('Failed to fetch member', error);
+        toast.error('Failed to load member profile');
       } finally {
         setIsLoading(false);
       }
@@ -39,9 +43,11 @@ export function MemberProfilePage() {
     if (member && window.confirm(`Are you sure you want to archive ${member.firstName} ${member.lastName}?`)) {
       try {
         await membersApi.archiveMember(member.id);
+        toast.success(`${member.firstName} ${member.lastName} archived`);
         navigate('/members');
       } catch (error) {
         console.error('Failed to archive member', error);
+        toast.error('Failed to archive member');
       }
     }
   };
@@ -57,10 +63,7 @@ export function MemberProfilePage() {
   if (isLoading) {
     return (
       <div className="member-profile-page">
-        <div className="profile-loading">
-          <div className="spinner"></div>
-          <span>Loading member profile...</span>
-        </div>
+        <ProfileSkeleton />
       </div>
     );
   }
@@ -118,7 +121,7 @@ export function MemberProfilePage() {
         <div className="profile-hero-content">
           <div className="avatar-wrapper">
             {member.profilePictureUrl ? (
-              <img src={`http://localhost:3000${member.profilePictureUrl}`} alt={member.firstName} className="avatar-img" />
+              <img src={getMediaUrl(member.profilePictureUrl)} alt={member.firstName} className="avatar-img" />
             ) : (
               <div className="avatar-gradient">
                 <span>{member.firstName?.[0] || ''}{member.lastName?.[0] || ''}</span>
@@ -143,62 +146,46 @@ export function MemberProfilePage() {
               </div>
             </div>
 
-            {/* Quick Contact Chips */}
             <div className="quick-chips-row">
-              {member.phoneNumber && (
-                <div className="chip-item">
-                  <IconPhone size={15} stroke={1.8} />
-                  <span>{member.phoneNumber}</span>
-                </div>
-              )}
-
-              {member.email && (
-                <div className="chip-item">
-                  <IconMail size={15} stroke={1.8} />
-                  <span>{member.email}</span>
-                </div>
-              )}
-
+              <div className="chip-item">
+                <IconMail size={15} stroke={1.8} />
+                <span>{member.email || 'No email provided'}</span>
+              </div>
+              <div className="chip-item">
+                <IconPhone size={15} stroke={1.8} />
+                <span>{member.phoneNumber || 'No phone provided'}</span>
+              </div>
               <div className="chip-item">
                 <IconMapPin size={15} stroke={1.8} />
-                <span>{member.address || 'Main Campus'}</span>
+                <span>{member.address || 'Address not listed'}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ================= DETAIL PANELS GRID ================= */}
+      {/* ================= DETAILS PANELS GRID ================= */}
       <div className="details-panels-grid">
-        
-        {/* PANEL 1: PERSONAL INFORMATION */}
+        {/* PANEL 1: PERSONAL DEMOGRAPHICS */}
         <div className="detail-card">
           <div className="detail-card-header">
             <div className="header-icon-wrap">
               <IconUser size={17} stroke={1.8} />
             </div>
-            <h3>Personal Demographics</h3>
+            <h3>Personal Information</h3>
           </div>
 
           <div className="detail-card-body grid-2">
             <div className="info-item">
-              <span className="info-label">First Name</span>
-              <span className="info-value">{member.firstName}</span>
-            </div>
-
-            <div className="info-item">
-              <span className="info-label">Middle Name</span>
-              <span className="info-value">{member.middleName || '—'}</span>
-            </div>
-
-            <div className="info-item">
-              <span className="info-label">Last Name</span>
-              <span className="info-value">{member.lastName}</span>
+              <span className="info-label">Full Name</span>
+              <span className="info-value">
+                {member.firstName} {member.middleName ? `${member.middleName} ` : ''}{member.lastName} {member.suffix || ''}
+              </span>
             </div>
 
             <div className="info-item">
               <span className="info-label">Gender</span>
-              <span className="info-value capitalize">{member.gender ? member.gender.toLowerCase() : '—'}</span>
+              <span className="info-value capitalize">{member.gender?.toLowerCase() || 'Not Specified'}</span>
             </div>
 
             <div className="info-item">
@@ -269,9 +256,11 @@ export function MemberProfilePage() {
 
             <div className="info-item">
               <span className="info-label">Membership Status</span>
-              <span className={`status-pill status-${member.membershipStatus?.toLowerCase() || 'active'}`}>
-                {member.membershipStatus || 'ACTIVE'}
-              </span>
+              <div>
+                <span className={`status-pill status-${member.membershipStatus?.toLowerCase() || 'active'}`}>
+                  {member.membershipStatus || 'ACTIVE'}
+                </span>
+              </div>
             </div>
 
             <div className="info-item">
@@ -287,9 +276,11 @@ export function MemberProfilePage() {
 
             <div className="info-item">
               <span className="info-label">Water Baptism</span>
-              <span className={`step-pill ${member.baptismStatus === 'BAPTIZED' ? 'step-baptized' : 'step-pending'}`}>
-                {member.baptismStatus === 'BAPTIZED' ? 'Baptized' : 'Not Baptized'}
-              </span>
+              <div>
+                <span className={`step-pill ${member.baptismStatus === 'BAPTIZED' ? 'step-baptized' : 'step-pending'}`}>
+                  {member.baptismStatus === 'BAPTIZED' ? 'Baptized' : 'Not Baptized'}
+                </span>
+              </div>
             </div>
 
             {member.baptismStatus === 'BAPTIZED' && (
@@ -304,7 +295,6 @@ export function MemberProfilePage() {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -8,9 +8,15 @@ import {
   IconFilter, 
   IconEye, 
   IconEdit, 
-  IconTrash 
+  IconTrash,
+  IconPhone,
+  IconMail,
+  IconMapPin
 } from '@tabler/icons-react';
 import { membersApi, MemberResponse } from '../api/members';
+import { getMediaUrl } from '@/utils/media';
+import { TableSkeleton, GridSkeleton, Pagination } from '@/components/ui';
+import { toast } from '@/components/ui/Toast';
 import './MembersDirectoryPage.scss';
 
 export function MembersDirectoryPage() {
@@ -22,6 +28,8 @@ export function MembersDirectoryPage() {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
 
   const fetchMembers = async () => {
@@ -34,6 +42,7 @@ export function MembersDirectoryPage() {
       setMembers(data);
     } catch (error) {
       console.error('Failed to fetch members:', error);
+      toast.error('Failed to load members');
     } finally {
       setIsLoading(false);
     }
@@ -46,6 +55,11 @@ export function MembersDirectoryPage() {
     return () => clearTimeout(timer);
   }, [searchTerm, statusFilter]);
 
+  // Reset page when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, sortBy]);
+
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setSelectedIds(members.map(m => m.id));
@@ -54,8 +68,8 @@ export function MembersDirectoryPage() {
     }
   };
 
-  const handleSelectOne = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleSelectOne = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setSelectedIds(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
@@ -66,9 +80,11 @@ export function MembersDirectoryPage() {
     if (window.confirm(`Are you sure you want to archive ${name}?`)) {
       try {
         await membersApi.archiveMember(id);
+        toast.success(`${name} archived`);
         fetchMembers();
       } catch (error) {
         console.error('Failed to archive member:', error);
+        toast.error('Failed to archive member');
       }
     }
   };
@@ -83,6 +99,12 @@ export function MembersDirectoryPage() {
     }
     return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
   });
+
+  const totalItems = sortedMembers.length;
+  const paginatedMembers = sortedMembers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="members-directory-page">
@@ -140,11 +162,11 @@ export function MembersDirectoryPage() {
           <div className="sort-by-select-wrap">
             <label>Sort by:</label>
             <select 
+              className="sort-select"
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="sort-select"
             >
-              <option value="recent">Recently Joined</option>
+              <option value="recent">Recently Added</option>
               <option value="name">Name (A - Z)</option>
               <option value="status">Membership Status</option>
             </select>
@@ -204,155 +226,288 @@ export function MembersDirectoryPage() {
         </div>
       </div>
 
-      {/* ================= TABLE VIEW ================= */}
-      <div className="table-card">
-        {isLoading ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <span>Loading directory...</span>
-          </div>
-        ) : sortedMembers.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">
-              <IconUsers size={36} stroke={1.5} />
+      {/* ================= VIEW SWITCHER (LIST / THUMBNAIL) ================= */}
+      {viewMode === 'thumbnail' ? (
+        /* THUMBNAIL / GRID VIEW */
+        <div className="thumbnail-view-container">
+          {isLoading ? (
+            <GridSkeleton count={8} />
+          ) : sortedMembers.length === 0 ? (
+            <div className="table-card">
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <IconUsers size={36} stroke={1.5} />
+                </div>
+                <h3>No members found</h3>
+                <p>Try adjusting your search criteria or add a new church member.</p>
+                <Link to="/members/new" className="btn-add-inline">
+                  + Add New Member
+                </Link>
+              </div>
             </div>
-            <h3>No members found</h3>
-            <p>Try adjusting your search criteria or add a new church member.</p>
-            <Link to="/members/new" className="btn-add-inline">
-              + Add New Member
-            </Link>
-          </div>
-        ) : (
-          <div className="table-responsive">
-            <table className="members-table">
-              <thead>
-                <tr>
-                  <th className="col-checkbox">
-                    <input 
-                      type="checkbox" 
-                      onChange={handleSelectAll}
-                      checked={selectedIds.length === sortedMembers.length && sortedMembers.length > 0}
-                    />
-                  </th>
-                  <th>Basic Info</th>
-                  <th>Phone Number</th>
-                  <th>City / Address</th>
-                  <th>Baptism</th>
-                  <th>Joined Date</th>
-                  <th>Status</th>
-                  <th className="col-actions">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedMembers.map((member) => {
+          ) : (
+            <div className="thumbnail-card-wrapper">
+              <div className="members-thumbnail-grid">
+                {paginatedMembers.map((member) => {
                   const isSelected = selectedIds.includes(member.id);
 
                   return (
-                    <tr 
-                      key={member.id} 
-                      className={`member-row ${isSelected ? 'row-selected' : ''}`}
+                    <div
+                      key={member.id}
+                      className={`member-thumbnail-card ${isSelected ? 'card-selected' : ''}`}
                       onClick={() => navigate(`/members/${member.id}`)}
                     >
-                      <td className="col-checkbox" onClick={(e) => handleSelectOne(member.id, e)}>
-                        <input 
-                          type="checkbox" 
-                          checked={isSelected}
-                          onChange={() => {}}
-                        />
-                      </td>
+                      <div className="card-top-bar" onClick={(e) => e.stopPropagation()}>
+                        <label className="checkbox-wrap">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleSelectOne(member.id)}
+                          />
+                        </label>
 
-                      {/* Basic Info (Avatar + Name + Email) */}
-                      <td>
-                        <div className="basic-info-cell">
-                          <div className="member-avatar">
-                            {member.profilePictureUrl ? (
-                              <img src={`http://localhost:3000${member.profilePictureUrl}`} alt={member.firstName} />
-                            ) : (
-                              <span className="avatar-initials">
-                                {member.firstName?.[0] || ''}{member.lastName?.[0] || ''}
-                              </span>
-                            )}
-                          </div>
-                          <div className="name-email-wrap">
-                            <span className="member-full-name">{member.firstName} {member.lastName}</span>
-                            <span className="member-email">{member.email || member.memberId}</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Phone */}
-                      <td>
-                        <span className="cell-phone">{member.phoneNumber || '—'}</span>
-                      </td>
-
-                      {/* City / Address */}
-                      <td>
-                        <span className="cell-city">{member.address || 'Main Campus'}</span>
-                      </td>
-
-                      {/* Baptism */}
-                      <td>
-                        <span className={`badge-step ${member.baptismStatus === 'BAPTIZED' ? 'step-baptized' : 'step-pending'}`}>
-                          {member.baptismStatus === 'BAPTIZED' ? 'Baptized' : 'Not Baptized'}
-                        </span>
-                      </td>
-
-                      {/* Joined Date */}
-                      <td>
-                        <span className="cell-date">
-                          {member.dateJoined 
-                            ? new Date(member.dateJoined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                            : member.createdAt 
-                              ? new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                              : '—'}
-                        </span>
-                      </td>
-
-                      {/* Status Badge */}
-                      <td>
-                        <span className={`status-pill status-${member.membershipStatus?.toLowerCase() || 'active'}`}>
-                          {member.membershipStatus || 'ACTIVE'}
-                        </span>
-                      </td>
-
-                      {/* Tabler Action Buttons */}
-                      <td className="col-actions" onClick={(e) => e.stopPropagation()}>
-                        <div className="table-actions-group">
-                          <button 
-                            className="btn-table-action"
+                        <div className="card-actions-quick">
+                          <button
+                            type="button"
+                            className="btn-card-action"
                             title="View Profile"
-                            onClick={() => navigate(`/members/${member.id}`)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/members/${member.id}`);
+                            }}
                           >
-                            <IconEye size={17} stroke={1.8} />
+                            <IconEye size={15} stroke={1.8} />
                           </button>
-
-                          <button 
-                            className="btn-table-action"
-                            title="Edit Member"
-                            onClick={() => navigate(`/members/${member.id}/edit`)}
+                          <button
+                            type="button"
+                            className="btn-card-action"
+                            title="Edit Profile"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/members/${member.id}/edit`);
+                            }}
                           >
-                            <IconEdit size={17} stroke={1.8} />
+                            <IconEdit size={15} stroke={1.8} />
                           </button>
-
                           {member.membershipStatus !== 'ARCHIVED' && (
-                            <button 
-                              className="btn-table-action danger"
+                            <button
+                              type="button"
+                              className="btn-card-action danger"
                               title="Archive Member"
                               onClick={(e) => handleArchive(member.id, `${member.firstName} ${member.lastName}`, e)}
                             >
-                              <IconTrash size={17} stroke={1.8} />
+                              <IconTrash size={15} stroke={1.8} />
                             </button>
                           )}
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+
+                      <div className="card-avatar-section">
+                        <div className="card-avatar">
+                          {member.profilePictureUrl ? (
+                            <img src={getMediaUrl(member.profilePictureUrl)} alt={member.firstName} />
+                          ) : (
+                            <span className="card-avatar-initials">
+                              {member.firstName?.[0] || ''}{member.lastName?.[0] || ''}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="card-name">{member.firstName} {member.lastName}</h3>
+                        <span className="card-member-id">{member.memberId}</span>
+
+                        <div className="card-badges-row">
+                          <span className={`status-pill status-${member.membershipStatus?.toLowerCase() || 'active'}`}>
+                            {member.membershipStatus || 'ACTIVE'}
+                          </span>
+                          <span className={`badge-step ${member.baptismStatus === 'BAPTIZED' ? 'step-baptized' : 'step-pending'}`}>
+                            {member.baptismStatus === 'BAPTIZED' ? 'Baptized' : 'Not Baptized'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="card-info-list">
+                        <div className="card-info-item">
+                          <IconPhone size={14} stroke={1.8} />
+                          <span>{member.phoneNumber || '—'}</span>
+                        </div>
+                        <div className="card-info-item">
+                          <IconMail size={14} stroke={1.8} />
+                          <span className="truncate">{member.email || 'No email provided'}</span>
+                        </div>
+                        <div className="card-info-item">
+                          <IconMapPin size={14} stroke={1.8} />
+                          <span className="truncate">{member.address || 'Main Campus'}</span>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </div>
+
+              {/* Thumbnail Pagination */}
+              <div className="thumbnail-pagination-card">
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={totalItems}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* TABLE VIEW */
+        <div className="table-card">
+          {isLoading ? (
+            <TableSkeleton rows={6} />
+          ) : sortedMembers.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <IconUsers size={36} stroke={1.5} />
+              </div>
+              <h3>No members found</h3>
+              <p>Try adjusting your search criteria or add a new church member.</p>
+              <Link to="/members/new" className="btn-add-inline">
+                + Add New Member
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="table-responsive">
+                <table className="members-table">
+                  <thead>
+                    <tr>
+                      <th className="col-checkbox">
+                        <input 
+                          type="checkbox" 
+                          onChange={handleSelectAll}
+                          checked={selectedIds.length === sortedMembers.length && sortedMembers.length > 0}
+                        />
+                      </th>
+                      <th>Basic Info</th>
+                      <th>Phone Number</th>
+                      <th>City / Address</th>
+                      <th>Joined Date</th>
+                      <th>Status</th>
+                      <th className="col-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedMembers.map((member) => {
+                      const isSelected = selectedIds.includes(member.id);
+
+                      return (
+                        <tr 
+                          key={member.id} 
+                          className={`member-row ${isSelected ? 'row-selected' : ''}`}
+                          onClick={() => navigate(`/members/${member.id}`)}
+                        >
+                          <td className="col-checkbox" onClick={(e) => handleSelectOne(member.id, e)}>
+                            <input 
+                              type="checkbox" 
+                              checked={isSelected}
+                              onChange={() => {}}
+                            />
+                          </td>
+
+                          {/* Basic Info (Avatar + Name + Email) */}
+                          <td>
+                            <div className="basic-info-cell">
+                              <div className="member-avatar">
+                                {member.profilePictureUrl ? (
+                                  <img src={getMediaUrl(member.profilePictureUrl)} alt={member.firstName} />
+                                ) : (
+                                  <span className="avatar-initials">
+                                    {member.firstName?.[0] || ''}{member.lastName?.[0] || ''}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="name-email-wrap">
+                                <span className="member-full-name">{member.firstName} {member.lastName}</span>
+                                <span className="member-email">{member.email || member.memberId}</span>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Phone */}
+                          <td>
+                            <span className="cell-phone">{member.phoneNumber || '—'}</span>
+                          </td>
+
+                          {/* City / Address */}
+                          <td>
+                            <span className="cell-city">{member.address || 'Main Campus'}</span>
+                          </td>
+
+                          {/* Joined Date */}
+                          <td>
+                            <span className="cell-date">
+                              {member.dateJoined 
+                                ? new Date(member.dateJoined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                : member.createdAt 
+                                  ? new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                  : '—'}
+                            </span>
+                          </td>
+
+                          {/* Status Badge */}
+                          <td>
+                            <span className={`status-pill status-${member.membershipStatus?.toLowerCase() || 'active'}`}>
+                              {member.membershipStatus || 'ACTIVE'}
+                            </span>
+                          </td>
+
+                          {/* Tabler Action Buttons */}
+                          <td className="col-actions" onClick={(e) => e.stopPropagation()}>
+                            <div className="table-actions-group">
+                              <button 
+                                className="btn-table-action"
+                                title="View Profile"
+                                onClick={() => navigate(`/members/${member.id}`)}
+                              >
+                                <IconEye size={17} stroke={1.8} />
+                              </button>
+
+                              <button 
+                                className="btn-table-action"
+                                title="Edit Member"
+                                onClick={() => navigate(`/members/${member.id}/edit`)}
+                              >
+                                <IconEdit size={17} stroke={1.8} />
+                              </button>
+
+                              {member.membershipStatus !== 'ARCHIVED' && (
+                                <button 
+                                  className="btn-table-action danger"
+                                  title="Archive Member"
+                                  onClick={(e) => handleArchive(member.id, `${member.firstName} ${member.lastName}`, e)}
+                                >
+                                  <IconTrash size={17} stroke={1.8} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Table Pagination */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+              />
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

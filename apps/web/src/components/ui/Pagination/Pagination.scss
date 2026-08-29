@@ -1,0 +1,164 @@
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .pagination-info {
+    font-size: 13px;
+    color: #64748b;
+
+    strong {
+      color: #161F30;
+      font-weight: 600;
+    }
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .page-size-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: #64748b;
+
+      label {
+        font-weight: 500;
+      }
+
+      .page-size-select {
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 5px 24px 5px 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #283E58;
+        outline: none;
+        cursor: pointer;
+        font-family: inherit;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23283E58' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+        &:hover {
+          border-color: #94a3b8;
+        }
+
+        &:focus {
+          border-color: #283E58;
+          box-shadow: 0 0 0 2px rgba(40, 62, 88, 0.15);
+        }
+      }
+    }
+
+    .pagination-buttons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .btn-page-nav {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+        &:hover:not(:disabled) {
+          background: #f8fafc;
+          border-color: #283E58;
+          color: #283E58;
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          background: #f8fafc;
+          border-color: #e2e8f0;
+          box-shadow: none;
+        }
+      }
+
+      .page-numbers {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        .btn-page-number {
+          min-width: 32px;
+          height: 32px;
+          padding: 0 8px;
+          border-radius: 8px;
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          color: #475569;
+          font-size: 13px;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.15s ease;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+          &:hover:not(.active) {
+            background: #f8fafc;
+            border-color: #283E58;
+            color: #283E58;
+            transform: translateY(-1px);
+          }
+
+          &.active {
+            background: #283E58;
+            border-color: #283E58;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(40, 62, 88, 0.25);
+          }
+        }
+
+        .page-ellipsis {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          color: #94a3b8;
+          font-weight: 700;
+          font-size: 13px;
+          user-select: none;
+        }
+      }
+    }
+  }
+}

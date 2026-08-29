@@ -9,8 +9,9 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import * as crypto from 'crypto';
+import * as fs from 'fs';
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard)
@@ -19,15 +20,21 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: (req, file, cb) => {
+          const uploadDir = join(process.cwd(), 'uploads');
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+          cb(null, uploadDir);
+        },
         filename: (req, file, cb) => {
           const randomName = crypto.randomBytes(16).toString('hex');
-          cb(null, `${randomName}${extname(file.originalname)}`);
+          cb(null, `${randomName}${extname(file.originalname).toLowerCase()}`);
         },
       }),
       fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-          return cb(new BadRequestException('Only image files are allowed!'), false);
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/i)) {
+          return cb(new BadRequestException('Only image files (JPG, PNG, GIF, WEBP) are allowed!'), false);
         }
         cb(null, true);
       },
@@ -40,7 +47,7 @@ export class UploadController {
     if (!file) {
       throw new BadRequestException('File is required');
     }
-    // Return the URL to access the image
+    // Return the relative URL to access the image
     return {
       url: `/uploads/${file.filename}`,
     };

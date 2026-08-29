@@ -1,0 +1,35 @@
+.ui-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(22, 31, 48, 0.04);
+  transition: all 0.2s ease;
+
+  &.ui-card-bordered {
+    border: 1px solid #e2e8f0;
+  }
+
+  &.ui-card-hoverable:hover {
+    transform: translateY(-3px);
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 24px rgba(22, 31, 48, 0.09);
+  }
+
+  .ui-card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ui-card-body {
+    padding: 22px;
+  }
+
+  .ui-card-footer {
+    padding: 14px 22px;
+    border-top: 1px solid #f1f5f9;
+    background: #fafbfc;
+  }
+}

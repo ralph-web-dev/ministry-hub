@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { 
-  IconLayoutDashboard, 
-  IconUsers, 
-  IconMenu2, 
-  IconBell, 
-  IconHelpCircle, 
-  IconChevronDown, 
-  IconLogout, 
-  IconUser, 
+import {
+  IconLayoutDashboard,
+  IconUsers,
+  IconMenu2,
+  IconBell,
+  IconHelpCircle,
+  IconChevronDown,
+  IconLogout,
+  IconUser,
   IconSettings,
   IconX
 } from '@tabler/icons-react';
@@ -49,8 +49,8 @@ export function DashboardLayout() {
     <div className="dashboard-layout">
       {/* Mobile Backdrop Overlay */}
       {isMobileOpen && (
-        <div 
-          className="sidebar-backdrop" 
+        <div
+          className="sidebar-backdrop"
           onClick={() => setIsMobileOpen(false)}
           aria-hidden="true"
         />
@@ -62,41 +62,41 @@ export function DashboardLayout() {
           {(!isCollapsed || isMobileOpen) && (
             <img src="/logo.svg" alt="MinistryHub Logo" className="sidebar-logo" />
           )}
-          
+
           {/* Desktop Collapse Toggle */}
-          <button 
-            className="sidebar-toggle desktop-only" 
+          <button
+            className="sidebar-toggle desktop-only"
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label="Toggle Sidebar"
           >
-            <IconMenu2 size={20} stroke={1.8} />
+            <IconMenu2 size={21} stroke={1.8} />
           </button>
 
           {/* Mobile Close Button */}
-          <button 
-            className="sidebar-toggle mobile-only" 
+          <button
+            className="sidebar-toggle mobile-only"
             onClick={() => setIsMobileOpen(false)}
             aria-label="Close Sidebar"
           >
-            <IconX size={20} stroke={1.8} />
+            <IconX size={21} stroke={1.8} />
           </button>
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink 
-            to="/dashboard" 
+          <NavLink
+            to="/dashboard"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             onClick={() => setIsMobileOpen(false)}
           >
-            <IconLayoutDashboard size={20} stroke={1.8} />
+            <IconLayoutDashboard size={22} stroke={1.8} />
             <span className="nav-label">Dashboard</span>
           </NavLink>
-          <NavLink 
-            to="/members" 
+          <NavLink
+            to="/members"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             onClick={() => setIsMobileOpen(false)}
           >
-            <IconUsers size={20} stroke={1.8} />
+            <IconUsers size={22} stroke={1.8} />
             <span className="nav-label">Members</span>
           </NavLink>
         </nav>
@@ -107,8 +107,8 @@ export function DashboardLayout() {
         <header className="global-header">
           <div className="header-left">
             {/* Mobile Hamburger Menu Button */}
-            <button 
-              className="mobile-menu-trigger mobile-only" 
+            <button
+              className="mobile-menu-trigger mobile-only"
               onClick={() => setIsMobileOpen(true)}
               aria-label="Open Navigation Menu"
             >
@@ -122,18 +122,18 @@ export function DashboardLayout() {
               <IconBell size={20} stroke={1.8} />
               <span className="notification-badge"></span>
             </button>
-            
+
             <button className="header-icon-btn hide-on-mobile" aria-label="Help">
               <IconHelpCircle size={20} stroke={1.8} />
             </button>
 
             <div className="header-divider hide-on-mobile"></div>
-            
+
             {/* User Profile Dropdown Container */}
             <div className="user-dropdown-container" style={{ position: 'relative' }}>
-              <button 
+              <button
                 type="button"
-                className="user-profile-trigger" 
+                className="user-profile-trigger"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
               >
@@ -146,7 +146,7 @@ export function DashboardLayout() {
                 </div>
                 <IconChevronDown size={16} stroke={2} className={`dropdown-arrow hide-on-mobile ${isDropdownOpen ? 'open' : ''}`} />
               </button>
-              
+
               {isDropdownOpen && (
                 <div className="user-dropdown-menu">
                   <div className="dropdown-user-summary">

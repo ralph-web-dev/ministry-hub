@@ -7,9 +7,12 @@ import {
   IconPhone, 
   IconMail, 
   IconMapPin, 
-  IconUser 
+  IconUser,
+  IconAlertCircle
 } from '@tabler/icons-react';
 import { membersApi } from '../api/members';
+import { getMediaUrl } from '@/utils/media';
+import { toast } from '@/components/ui/Toast';
 import './MemberFormPage.scss';
 
 export function MemberFormPage() {
@@ -18,7 +21,9 @@ export function MemberFormPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string>('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -57,7 +62,7 @@ export function MemberFormPage() {
           }
         } catch (error) {
           console.error('Failed to load member details', error);
-          alert('Failed to load member details.');
+          toast.error('Failed to load member details.', 'Error');
         }
       };
       fetchMember();
@@ -67,39 +72,97 @@ export function MemberFormPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear validation error when typing
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsUploadingPhoto(true);
     try {
       const url = await membersApi.uploadProfilePicture(file);
       setProfilePictureUrl(url);
-    } catch (error) {
+      toast.success('Photo uploaded');
+    } catch (error: any) {
       console.error('Failed to upload image', error);
-      alert('Failed to upload image. Please try again.');
+      const msg = error?.response?.data?.message || 'Failed to upload photo';
+      toast.error(msg);
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validate = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) {
+      errors.firstName = 'This field is required';
+    }
+
+    if (!formData.lastName.trim()) {
+      errors.lastName = 'This field is required';
+    }
+
+    if (!formData.dateOfBirth) {
+      errors.dateOfBirth = 'This field is required';
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      errors.phoneNumber = 'This field is required';
+    }
+
+    if (!formData.address.trim()) {
+      errors.address = 'This field is required';
+    }
+
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.error('Please fill in all required fields');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
+    if (!validate()) {
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
       const payload: any = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
+        phoneNumber: formData.phoneNumber.trim(),
+        address: formData.address.trim(),
         membershipStatus: formData.membershipStatus,
         baptismStatus: formData.baptismStatus,
       };
 
-      if (formData.middleName) payload.middleName = formData.middleName;
-      if (formData.email) payload.email = formData.email;
-      if (formData.phoneNumber) payload.phoneNumber = formData.phoneNumber;
-      if (formData.dateOfBirth) payload.dateOfBirth = new Date(formData.dateOfBirth).toISOString();
+      if (formData.middleName.trim()) payload.middleName = formData.middleName.trim();
+      if (formData.email.trim()) payload.email = formData.email.trim();
       if (formData.gender) payload.gender = formData.gender;
-      if (formData.address) payload.address = formData.address;
       if (formData.baptismDate && formData.baptismStatus === 'BAPTIZED') {
         payload.baptismDate = new Date(formData.baptismDate).toISOString();
       }
@@ -107,13 +170,20 @@ export function MemberFormPage() {
 
       if (id) {
         await membersApi.updateMember(id, payload);
+        toast.success('Member profile updated');
       } else {
         await membersApi.createMember(payload);
+        toast.success('Member added successfully');
       }
       navigate('/members');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save member', error);
-      alert('Failed to save member. Please check all required fields.');
+      const serverErrors = error?.response?.data?.errors;
+      if (serverErrors && typeof serverErrors === 'object') {
+        setFormErrors(serverErrors);
+      }
+      const message = error?.response?.data?.message || 'Failed to save member';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -138,14 +208,19 @@ export function MemberFormPage() {
           <button type="button" className="btn btn-outline" onClick={() => navigate('/members')}>
             Cancel
           </button>
-          <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <button 
+            type="button" 
+            className="btn btn-primary" 
+            onClick={() => handleSubmit()} 
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Saving...' : id ? 'Update Member' : 'Save Member'}
           </button>
         </div>
       </div>
 
       {/* ================= MAIN FORM CARD ================= */}
-      <form className="form-card-container" onSubmit={handleSubmit}>
+      <form className="form-card-container" onSubmit={handleSubmit} noValidate>
         
         {/* SECTION 1: PROFILE PICTURE */}
         <div className="form-section-card">
@@ -160,7 +235,7 @@ export function MemberFormPage() {
           <div className="avatar-upload-row">
             <div className="avatar-preview-box">
               {profilePictureUrl ? (
-                <img src={`http://localhost:3000${profilePictureUrl}`} alt="Preview" />
+                <img src={getMediaUrl(profilePictureUrl)} alt="Preview" />
               ) : (
                 <div className="avatar-placeholder">
                   <IconUser size={40} stroke={1.5} />
@@ -174,15 +249,19 @@ export function MemberFormPage() {
                   type="button" 
                   className="btn btn-outline btn-sm upload-trigger-btn" 
                   onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingPhoto}
                 >
                   <IconUpload size={16} stroke={2} />
-                  <span>{profilePictureUrl ? 'Change Photo' : 'Upload Photo'}</span>
+                  <span>
+                    {isUploadingPhoto ? 'Uploading...' : profilePictureUrl ? 'Change Photo' : 'Upload Photo'}
+                  </span>
                 </button>
                 {profilePictureUrl && (
                   <button 
                     type="button" 
                     className="btn btn-text danger btn-sm" 
                     onClick={() => setProfilePictureUrl('')}
+                    disabled={isUploadingPhoto}
                   >
                     Remove
                   </button>
@@ -192,7 +271,7 @@ export function MemberFormPage() {
                 type="file" 
                 ref={fileInputRef} 
                 className="hidden-file-input" 
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleImageUpload}
               />
               <span className="upload-hint">Supported formats: JPG, PNG, WEBP. Maximum file size: 5MB.</span>
@@ -216,12 +295,18 @@ export function MemberFormPage() {
               <input 
                 type="text" 
                 name="firstName" 
-                required 
                 placeholder="e.g. John"
                 value={formData.firstName} 
                 onChange={handleInputChange} 
-                className="form-input"
+                className={`form-input ${formErrors.firstName ? 'has-error' : ''}`}
+                aria-invalid={!!formErrors.firstName}
               />
+              {formErrors.firstName && (
+                <div className="field-error-msg">
+                  <IconAlertCircle size={14} />
+                  <span>{formErrors.firstName}</span>
+                </div>
+              )}
             </div>
 
             <div className="field-group">
@@ -241,23 +326,36 @@ export function MemberFormPage() {
               <input 
                 type="text" 
                 name="lastName" 
-                required 
                 placeholder="e.g. Doe"
                 value={formData.lastName} 
                 onChange={handleInputChange} 
-                className="form-input"
+                className={`form-input ${formErrors.lastName ? 'has-error' : ''}`}
+                aria-invalid={!!formErrors.lastName}
               />
+              {formErrors.lastName && (
+                <div className="field-error-msg">
+                  <IconAlertCircle size={14} />
+                  <span>{formErrors.lastName}</span>
+                </div>
+              )}
             </div>
 
             <div className="field-group">
-              <label className="field-label">Date of Birth</label>
+              <label className="field-label">Date of Birth <span className="req">*</span></label>
               <input 
                 type="date" 
                 name="dateOfBirth" 
                 value={formData.dateOfBirth} 
                 onChange={handleInputChange} 
-                className="form-input"
+                className={`form-input ${formErrors.dateOfBirth ? 'has-error' : ''}`}
+                aria-invalid={!!formErrors.dateOfBirth}
               />
+              {formErrors.dateOfBirth && (
+                <div className="field-error-msg">
+                  <IconAlertCircle size={14} />
+                  <span>{formErrors.dateOfBirth}</span>
+                </div>
+              )}
             </div>
 
             <div className="field-group">
@@ -265,7 +363,7 @@ export function MemberFormPage() {
               <select 
                 name="gender" 
                 value={formData.gender} 
-                onChange={handleInputChange}
+                onChange={handleInputChange} 
                 className="form-select"
               >
                 <option value="">Select Gender</option>
@@ -289,7 +387,7 @@ export function MemberFormPage() {
 
           <div className="form-fields-grid grid-2-cols">
             <div className="field-group">
-              <label className="field-label">Contact Number</label>
+              <label className="field-label">Contact Number <span className="req">*</span></label>
               <div className="input-with-icon">
                 <IconPhone size={16} stroke={1.8} className="input-icon" />
                 <input 
@@ -298,9 +396,16 @@ export function MemberFormPage() {
                   placeholder="e.g. (0915) 440-3912"
                   value={formData.phoneNumber} 
                   onChange={handleInputChange} 
-                  className="form-input with-left-icon"
+                  className={`form-input with-left-icon ${formErrors.phoneNumber ? 'has-error' : ''}`}
+                  aria-invalid={!!formErrors.phoneNumber}
                 />
               </div>
+              {formErrors.phoneNumber && (
+                <div className="field-error-msg">
+                  <IconAlertCircle size={14} />
+                  <span>{formErrors.phoneNumber}</span>
+                </div>
+              )}
             </div>
 
             <div className="field-group">
@@ -313,13 +418,20 @@ export function MemberFormPage() {
                   placeholder="e.g. member@ministryhub.org"
                   value={formData.email} 
                   onChange={handleInputChange} 
-                  className="form-input with-left-icon"
+                  className={`form-input with-left-icon ${formErrors.email ? 'has-error' : ''}`}
+                  aria-invalid={!!formErrors.email}
                 />
               </div>
+              {formErrors.email && (
+                <div className="field-error-msg">
+                  <IconAlertCircle size={14} />
+                  <span>{formErrors.email}</span>
+                </div>
+              )}
             </div>
 
             <div className="field-group full-width">
-              <label className="field-label">Residential Address</label>
+              <label className="field-label">Residential Address <span className="req">*</span></label>
               <div className="input-with-icon">
                 <IconMapPin size={16} stroke={1.8} className="input-icon" />
                 <input 
@@ -328,9 +440,16 @@ export function MemberFormPage() {
                   placeholder="e.g. San Sebastian St, Bacolod City, Negros Occidental"
                   value={formData.address} 
                   onChange={handleInputChange} 
-                  className="form-input with-left-icon"
+                  className={`form-input with-left-icon ${formErrors.address ? 'has-error' : ''}`}
+                  aria-invalid={!!formErrors.address}
                 />
               </div>
+              {formErrors.address && (
+                <div className="field-error-msg">
+                  <IconAlertCircle size={14} />
+                  <span>{formErrors.address}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -351,7 +470,7 @@ export function MemberFormPage() {
               <select 
                 name="membershipStatus" 
                 value={formData.membershipStatus} 
-                onChange={handleInputChange}
+                onChange={handleInputChange} 
                 className="form-select"
               >
                 <option value="ACTIVE">Active Member</option>
@@ -366,7 +485,7 @@ export function MemberFormPage() {
               <select 
                 name="baptismStatus" 
                 value={formData.baptismStatus} 
-                onChange={handleInputChange}
+                onChange={handleInputChange} 
                 className="form-select"
               >
                 <option value="BAPTIZED">Baptized</option>

@@ -9,6 +9,73 @@
   box-sizing: border-box;
 
   /* ============================================================
+     BADGES & STATUS PILLS
+     ============================================================ */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5px 11px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: 1px solid transparent;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    &.status-active {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    &.status-inactive {
+      background: #f1f5f9;
+      color: #475569;
+      border-color: rgba(148, 163, 184, 0.25);
+    }
+
+    &.status-transferred {
+      background: #fffbeb;
+      color: #b45309;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    &.status-archived {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+  }
+
+  .step-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    &.step-baptized {
+      background: rgba(40, 62, 88, 0.07);
+      color: #283E58;
+      border-color: rgba(40, 62, 88, 0.15);
+    }
+
+    &.step-pending {
+      background: #f8fafc;
+      color: #64748b;
+      border-color: #e2e8f0;
+    }
+  }
+
+  /* ============================================================
      1. TOP NAV BAR
      ============================================================ */
   .profile-nav-bar {

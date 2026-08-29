@@ -8,10 +8,18 @@ import {
   Query,
   UseGuards,
   Request,
+  UsePipes,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MembershipStatus, BaptismStatus } from '@ministryhub/database';
+import {
+  createMemberSchema,
+  updateMemberSchema,
+  CreateMemberInput,
+  UpdateMemberInput,
+} from '@ministryhub/validation';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 
 @Controller('members')
 @UseGuards(JwtAuthGuard)
@@ -38,15 +46,17 @@ export class MembersController {
   }
 
   @Post()
-  create(@Request() req, @Body() createMemberDto: any) {
+  @UsePipes(new ZodValidationPipe(createMemberSchema))
+  create(@Request() req, @Body() createMemberDto: CreateMemberInput) {
     return this.membersService.create(req.user.churchId, createMemberDto);
   }
 
   @Patch(':id')
+  @UsePipes(new ZodValidationPipe(updateMemberSchema))
   update(
     @Request() req,
     @Param('id') id: string,
-    @Body() updateMemberDto: any,
+    @Body() updateMemberDto: UpdateMemberInput,
   ) {
     return this.membersService.update(req.user.churchId, id, updateMemberDto);
   }

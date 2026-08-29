@@ -1,9 +1,3 @@
-export const noop = () => {};
-
-export const classNames = (...classes: (string | undefined | null | false)[]) => {
-  return classes.filter(Boolean).join(' ');
-};
-
 // AES-256-GCM Encryption / Decryption Utilities
 // Compatible with both Browser (Web Crypto API) and Node.js 18+ runtime
 

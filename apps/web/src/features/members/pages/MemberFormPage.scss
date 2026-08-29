@@ -263,6 +263,31 @@
               border-color: #283E58;
               box-shadow: 0 0 0 3px rgba(40, 62, 88, 0.15);
             }
+
+            &.has-error {
+              border-color: #ef4444 !important;
+              background-color: #fffbfb;
+
+              &:focus {
+                border-color: #ef4444;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+              }
+            }
+          }
+
+          .field-error-msg {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #dc2626;
+            margin-top: 3px;
+            animation: fadeIn 0.15s ease-out;
+
+            svg {
+              flex-shrink: 0;
+            }
           }
 
           .form-select {

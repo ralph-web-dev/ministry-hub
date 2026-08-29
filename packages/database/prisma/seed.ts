@@ -7,24 +7,32 @@ async function main() {
   // Hash the password
   const passwordHash = await argon2.hash('Admin123!');
 
-  // Create organization
-  const organization = await prisma.organization.create({
-    data: {
-      name: 'Ministry Hub HQ',
-    },
-  });
+  // Find or create organization
+  let organization = await prisma.organization.findFirst();
+  if (!organization) {
+    organization = await prisma.organization.create({
+      data: {
+        name: 'Ministry Hub HQ',
+      },
+    });
+  }
 
-  // Create church
-  const church = await prisma.church.create({
-    data: {
-      organizationId: organization.id,
-      name: 'First Ministry Church',
-      address: '123 Ministry Way',
-    },
+  // Find or create church
+  let church = await prisma.church.findFirst({
+    where: { organizationId: organization.id },
   });
+  if (!church) {
+    church = await prisma.church.create({
+      data: {
+        organizationId: organization.id,
+        name: 'First Ministry Church',
+        address: '123 Ministry Way',
+      },
+    });
+  }
 
-  // Create the main admin user
-  const user = await prisma.user.upsert({
+  // Create or update Ralph Dev
+  await prisma.user.upsert({
     where: { email: 'ralph.dev@ministryhub.com' },
     update: {
       passwordHash,
@@ -43,7 +51,27 @@ async function main() {
     },
   });
 
-  console.log('Seeding complete! User created:', user.email);
+  // Create or update Admin User
+  await prisma.user.upsert({
+    where: { email: 'admin@ministryhub.com' },
+    update: {
+      passwordHash,
+      organizationId: organization.id,
+      churchId: church.id,
+      role: 'ADMIN',
+    },
+    create: {
+      email: 'admin@ministryhub.com',
+      passwordHash,
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'ADMIN',
+      organizationId: organization.id,
+      churchId: church.id,
+    },
+  });
+
+  console.log('Seeding complete! Users created: admin@ministryhub.com, ralph.dev@ministryhub.com (Password: Admin123!)');
 }
 
 main()

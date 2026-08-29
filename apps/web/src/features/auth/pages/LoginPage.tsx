@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { api } from '@/lib/api';
+import { encryptPayload } from '@ministryhub/utils';
+import { IconAlertTriangle, IconAlertCircle } from '@tabler/icons-react';
 import './LoginPage.scss';
 
 const EyeIcon = ({ visible }: { visible: boolean }) => (
@@ -24,17 +26,27 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [apiError, setApiError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [searchParams] = useSearchParams();
+  const isSessionExpired = searchParams.get('expired') === 'true';
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  useEffect(() => {
+    if (isSessionExpired) {
+      setErrorMessage('Your session has expired. Please sign in again to continue.');
+    }
+  }, [isSessionExpired]);
+
   const validate = () => {
     const errors: { email?: string; password?: string } = {};
-    if (!email) {
+    if (!email.trim()) {
       errors.email = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       errors.email = 'Please enter a valid email address';
     }
     if (!password) {
@@ -46,18 +58,31 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setApiError(false);
+    setErrorMessage(null);
     
     if (!validate()) return;
     
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
+      // AES Encrypt credentials before transmission over the wire
+      const encryptedPayload = await encryptPayload({
+        email: email.trim(),
+        password,
+      });
+
+      const response = await api.post('/auth/login', { payload: encryptedPayload });
       login(response.data.accessToken, response.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
-      setApiError(true);
+      const respData = err?.response?.data;
+      if (err?.response?.status === 429) {
+        setErrorMessage(respData?.message || 'Too many login attempts. Please wait 1 minute.');
+      } else if (respData?.message) {
+        setErrorMessage(respData.message);
+      } else {
+        setErrorMessage('The email or password you entered is incorrect.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -75,10 +100,15 @@ export function LoginPage() {
         </div>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
-            {apiError && (
-              <div className="error-alert" role="alert">
-                <strong>Unable to sign in</strong>
-                <p>The email or password you entered is incorrect.</p>
+            {errorMessage && (
+              <div className={`error-alert ${isSessionExpired ? 'session-expired-alert' : ''}`} role="alert">
+                <div className="alert-icon">
+                  {isSessionExpired ? <IconAlertTriangle size={18} /> : <IconAlertCircle size={18} />}
+                </div>
+                <div className="alert-text">
+                  <strong>{isSessionExpired ? 'Session Expired' : 'Unable to sign in'}</strong>
+                  <p>{errorMessage}</p>
+                </div>
               </div>
             )}
             
@@ -88,8 +118,12 @@ export function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: undefined })); setApiError(false); }}
-                placeholder="you@example.com"
+                onChange={(e) => { 
+                  setEmail(e.target.value); 
+                  setFieldErrors(p => ({ ...p, email: undefined })); 
+                  setErrorMessage(null); 
+                }}
+                placeholder="admin@ministryhub.com"
                 aria-invalid={!!fieldErrors.email}
                 disabled={isLoading}
               />
@@ -103,7 +137,11 @@ export function LoginPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: undefined })); setApiError(false); }}
+                  onChange={(e) => { 
+                    setPassword(e.target.value); 
+                    setFieldErrors(p => ({ ...p, password: undefined })); 
+                    setErrorMessage(null); 
+                  }}
                   placeholder="••••••••"
                   aria-invalid={!!fieldErrors.password}
                   disabled={isLoading}
@@ -122,7 +160,14 @@ export function LoginPage() {
             </div>
 
             <button type="submit" className="submit-button" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? (
+                <div className="submit-btn-spinner-wrap">
+                  <span className="btn-spinner"></span>
+                  <span>Signing in...</span>
+                </div>
+              ) : (
+                'Sign in'
+              )}
             </button>
           </form>
         </div>

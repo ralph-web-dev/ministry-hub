@@ -80,14 +80,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 22px;
+    padding: 0 20px;
     border-bottom: 1px solid #dde3ea;
     flex-shrink: 0;
 
     .sidebar-logo {
       width: auto;
-      height: 40px;
-      max-width: 168px;
+      height: 48px;
+      max-width: 185px;
       object-fit: contain;
     }
 
@@ -99,7 +99,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 6px;
+      padding: 7px;
       border-radius: var(--radius-sm);
       transition: all var(--transition-base);
       flex-shrink: 0;
@@ -123,13 +123,13 @@
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 11px 16px;
+      gap: 15px;
+      padding: 13px 18px;
       border-radius: 12px;
       color: #64748b;          /* neutral slate for inactive */
       text-decoration: none;
       font-weight: 500;
-      font-size: 15px;
+      font-size: 16px;
       transition: all var(--transition-base);
       border: 1px solid transparent;
 
@@ -137,8 +137,8 @@
         color: #94a3b8;        /* lighter slate for inactive icons */
         transition: color var(--transition-base);
         flex-shrink: 0;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
       }
 
       &:hover {
