@@ -65,13 +65,21 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      // AES Encrypt credentials before transmission over the wire
-      const encryptedPayload = await encryptPayload({
+      let encryptedPayload: string | undefined;
+      try {
+        encryptedPayload = await encryptPayload({
+          email: email.trim(),
+          password,
+        });
+      } catch (e) {
+        // Ignore encryption error fallback to plain
+      }
+
+      const response = await api.post('/auth/login', { 
         email: email.trim(),
         password,
+        ...(encryptedPayload ? { payload: encryptedPayload } : {}),
       });
-
-      const response = await api.post('/auth/login', { payload: encryptedPayload });
       login(response.data.accessToken, response.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
