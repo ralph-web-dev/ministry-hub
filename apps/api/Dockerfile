@@ -44,8 +44,9 @@ COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 # Copy workspace configs
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml tsconfig.json turbo.json ./
 COPY apps/api/package.json ./apps/api/
+
 
 # Create uploads directory
 RUN mkdir -p /app/apps/api/uploads
