@@ -24,9 +24,7 @@ services:
   # NestJS Backend API
   # ==========================================
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/ralph-web-dev/ministryhub-api:latest
     container_name: ministryhub_api
     restart: always
     environment:
@@ -46,9 +44,7 @@ services:
   # React / Vite Web Frontend (Nginx)
   # ==========================================
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
+    image: ghcr.io/ralph-web-dev/ministryhub-web:latest
     container_name: ministryhub_web
     restart: always
     depends_on:
