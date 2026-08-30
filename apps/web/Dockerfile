@@ -23,6 +23,7 @@ RUN pnpm --filter @ministryhub/database db:generate
 RUN pnpm --filter "./packages/*" build
 
 # Build Web Application
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm --filter web build
 
 # ==========================================
