@@ -1,4 +1,4 @@
-import 'dotenv/config';
+try { require('dotenv/config'); } catch (e) {}
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
