@@ -6,6 +6,7 @@ import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
 import { MembersDirectoryPage } from '@/features/members/pages/MembersDirectoryPage';
 import { MemberFormPage } from '@/features/members/pages/MemberFormPage';
 import { MemberProfilePage } from '@/features/members/pages/MemberProfilePage';
+import { AttendancePage } from '@/features/attendance/pages/AttendancePage';
 
 export const router = createBrowserRouter([
   {
@@ -41,9 +42,14 @@ export const router = createBrowserRouter([
           {
             path: '/members/:id/edit',
             element: <MemberFormPage />,
-          }
+          },
+          {
+            path: '/attendance',
+            element: <AttendancePage />,
+          },
         ]
       }
     ]
   }
 ]);
+

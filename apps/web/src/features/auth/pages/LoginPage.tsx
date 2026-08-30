@@ -97,6 +97,7 @@ export function LoginPage() {
 
         <div className="login-headings">
           <h1>Welcome back</h1>
+          <p>Sign in to continue to Ministry Hub.</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>

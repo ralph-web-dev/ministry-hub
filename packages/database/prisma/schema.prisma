@@ -3,8 +3,10 @@
 
 generator client {
   provider      = "prisma-client-js"
+  output        = "../src/generated/client"
   binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
 }
+
 
 datasource db {
   provider = "postgresql"
@@ -32,6 +34,8 @@ model Church {
   organization   Organization @relation(fields: [organizationId], references: [id])
   members        Member[]
   users          User[]
+  attendanceRecords AttendanceRecord[]
+  auditLogs      AuditLog[]
 }
 
 enum Role {
@@ -53,6 +57,8 @@ model User {
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   church         Church?      @relation(fields: [churchId], references: [id])
+  recordedAttendances AttendanceRecord[]
+  auditLogs      AuditLog[]
 }
 
 enum MembershipStatus {
@@ -94,5 +100,68 @@ model Member {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
-  church           Church           @relation(fields: [churchId], references: [id])
+  church            Church           @relation(fields: [churchId], references: [id])
+  attendanceRecords AttendanceRecord[]
 }
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+}
+
+enum AttendanceType {
+  SUNDAY_WORSHIP
+  MIDWEEK_SERVICE
+  SPECIAL_EVENT
+  YOUTH_FELLOWSHIP
+  OUTREACH
+  OTHER
+}
+
+model AttendanceRecord {
+  id             String           @id @default(uuid())
+  churchId       String
+  memberId       String
+  attendanceDate DateTime
+  attendanceType AttendanceType   @default(SUNDAY_WORSHIP)
+  status         AttendanceStatus @default(PRESENT)
+  eventId        String?
+  notes          String?
+  recordedById   String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  church         Church           @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  member         Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  recordedBy     User?            @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@unique([churchId, memberId, attendanceDate, attendanceType])
+  @@index([churchId, attendanceDate])
+  @@index([memberId])
+  @@index([attendanceDate])
+  @@index([attendanceType])
+  @@index([status])
+  @@index([eventId])
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  organizationId String?
+  churchId       String?
+  userId         String?
+  action         String
+  module         String
+  recordId       String?
+  details        Json?
+  createdAt      DateTime     @default(now())
+
+  church         Church?      @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([churchId])
+  @@index([module])
+  @@index([action])
+  @@index([createdAt])
+}
+

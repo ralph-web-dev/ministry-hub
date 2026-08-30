@@ -8,7 +8,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "build": "tsc"
+    "build": "tsc && node -e \"try { require('fs').cpSync('src/generated', 'dist/src/generated', {recursive: true, force: true}); } catch (e) { if (e.code !== 'EPERM' && e.code !== 'EBUSY' && e.code !== 'EPIPE') throw e; }\""
+
   },
   "dependencies": {
     "@prisma/client": "^5.15.0"

@@ -34,14 +34,20 @@
 .login-headings {
   text-align: center;
   margin-top: 0px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 
   h1 {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
     color: var(--primary-color);
     margin: 0;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 8px 0 0 0;
   }
 }
 
@@ -109,8 +115,8 @@
 
     label {
       font-size: 14px;
-      font-weight: 500;
-      color: var(--text-color);
+      font-weight: 600;
+      color: var(--primary-color);
     }
 
     .password-input-wrapper {

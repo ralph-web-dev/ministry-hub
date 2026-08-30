@@ -1,4 +1,5 @@
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
+import { Select } from '@/components/ui';
 import './Pagination.scss';
 
 export interface PaginationProps {
@@ -15,7 +16,7 @@ export function Pagination({
   currentPage,
   totalItems,
   pageSize,
-  pageSizeOptions = [10, 25, 50],
+  pageSizeOptions = [10, 25, 50, 100],
   onPageChange,
   onPageSizeChange,
   className = '',
@@ -80,7 +81,7 @@ export function Pagination({
         {onPageSizeChange && (
           <div className="page-size-selector">
             <label htmlFor="page-size-select">Per page:</label>
-            <select
+            <Select
               id="page-size-select"
               value={pageSize}
               onChange={(e) => {
@@ -94,7 +95,7 @@ export function Pagination({
                   {opt}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
 

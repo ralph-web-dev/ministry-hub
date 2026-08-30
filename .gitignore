@@ -40,3 +40,7 @@ Thumbs.db
 **/uploads/*
 !**/uploads/.gitkeep
 
+# Generated Prisma Client
+**/src/generated/**
+
+

@@ -1,4 +1,5 @@
 import React from 'react';
+import { PulseLoader } from 'react-spinners';
 import './Skeleton.scss';
 
 interface SkeletonProps {
@@ -29,11 +30,8 @@ export function Skeleton({
 export function PageLoader({ text = 'Loading MinistryHub...' }: { text?: string }) {
   return (
     <div className="page-loader-container">
-      <div className="loader-brand">
-        <img src="/logo.svg" alt="MinistryHub" />
-      </div>
-      <div className="loader-spinner" />
-      <span className="loader-text">{text}</span>
+      <PulseLoader color="var(--primary-color)" size={12} margin={4} />
+      <span className="loader-text" style={{ marginTop: '16px' }}>{text}</span>
     </div>
   );
 }

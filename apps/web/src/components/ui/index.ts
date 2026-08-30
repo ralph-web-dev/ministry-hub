@@ -4,3 +4,8 @@ export * from './Card';
 export * from './Pagination';
 export * from './Skeleton';
 export * from './Toast';
+export * from './Avatar';
+export * from './Input';
+export * from './Select';
+export * from './ToggleGroup';
+export * from './Table';

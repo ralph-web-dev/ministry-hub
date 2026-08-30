@@ -15,7 +15,7 @@ import {
 } from '@tabler/icons-react';
 import { membersApi, MemberResponse } from '../api/members';
 import { getMediaUrl } from '@/utils/media';
-import { TableSkeleton, GridSkeleton, Pagination } from '@/components/ui';
+import { TableSkeleton, GridSkeleton, Pagination, Avatar, Input, Select, ToggleGroup, Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui';
 import { toast } from '@/components/ui/Toast';
 import './MembersDirectoryPage.scss';
 
@@ -117,28 +117,21 @@ export function MembersDirectoryPage() {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="view-toggle">
-            <button 
-              className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </button>
-            <button 
-              className={`view-toggle-btn ${viewMode === 'thumbnail' ? 'active' : ''}`}
-              onClick={() => setViewMode('thumbnail')}
-            >
-              Thumbnail
-            </button>
-          </div>
+          <ToggleGroup
+            value={viewMode}
+            onChange={(v) => setViewMode(v as 'list' | 'thumbnail')}
+            options={[
+              { value: 'list', label: 'List' },
+              { value: 'thumbnail', label: 'Thumbnail' }
+            ]}
+          />
         </div>
 
         {/* Action Controls */}
         <div className="header-actions-group">
-          <div className="search-bar">
-            <IconSearch size={18} stroke={1.8} />
-            <input 
-              type="text" 
+          <div className="search-bar-wrapper">
+            <Input 
+              startIcon={<IconSearch size={18} stroke={1.8} />}
               placeholder="Search by name, ID or email..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -161,15 +154,14 @@ export function MembersDirectoryPage() {
 
           <div className="sort-by-select-wrap">
             <label>Sort by:</label>
-            <select 
-              className="sort-select"
+            <Select 
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value as any)}
             >
               <option value="recent">Recently Added</option>
               <option value="name">Name (A - Z)</option>
               <option value="status">Membership Status</option>
-            </select>
+            </Select>
           </div>
         </div>
 
@@ -303,15 +295,13 @@ export function MembersDirectoryPage() {
                       </div>
 
                       <div className="card-avatar-section">
-                        <div className="card-avatar">
-                          {member.profilePictureUrl ? (
-                            <img src={getMediaUrl(member.profilePictureUrl)} alt={member.firstName} />
-                          ) : (
-                            <span className="card-avatar-initials">
-                              {member.firstName?.[0] || ''}{member.lastName?.[0] || ''}
-                            </span>
-                          )}
-                        </div>
+                        <Avatar
+                          src={member.profilePictureUrl ? getMediaUrl(member.profilePictureUrl) : undefined}
+                          alt={member.firstName}
+                          fallback={`${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`}
+                          size="xl"
+                          className="card-avatar"
+                        />
                         <h3 className="card-name">{member.firstName} {member.lastName}</h3>
                         <span className="card-member-id">{member.memberId}</span>
 
@@ -376,73 +366,73 @@ export function MembersDirectoryPage() {
           ) : (
             <>
               <div className="table-responsive">
-                <table className="members-table">
-                  <thead>
-                    <tr>
-                      <th className="col-checkbox">
+                <Table className="members-table">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="col-checkbox">
                         <input 
                           type="checkbox" 
                           onChange={handleSelectAll}
                           checked={selectedIds.length === sortedMembers.length && sortedMembers.length > 0}
                         />
-                      </th>
-                      <th>Basic Info</th>
-                      <th>Phone Number</th>
-                      <th>City / Address</th>
-                      <th>Joined Date</th>
-                      <th>Status</th>
-                      <th className="col-actions">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                      </TableHead>
+                      <TableHead>Basic Info</TableHead>
+                      <TableHead>Phone Number</TableHead>
+                      <TableHead>City / Address</TableHead>
+                      <TableHead>Joined Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="col-actions">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {paginatedMembers.map((member) => {
                       const isSelected = selectedIds.includes(member.id);
 
                       return (
-                        <tr 
+                        <TableRow 
                           key={member.id} 
-                          className={`member-row ${isSelected ? 'row-selected' : ''}`}
+                          selected={isSelected}
+                          className="member-row"
                           onClick={() => navigate(`/members/${member.id}`)}
+                          style={{ cursor: 'pointer' }}
                         >
-                          <td className="col-checkbox" onClick={(e) => handleSelectOne(member.id, e)}>
+                          <TableCell className="col-checkbox" onClick={(e) => handleSelectOne(member.id, e)}>
                             <input 
                               type="checkbox" 
                               checked={isSelected}
                               onChange={() => {}}
                             />
-                          </td>
+                          </TableCell>
 
                           {/* Basic Info (Avatar + Name + Email) */}
-                          <td>
+                          <TableCell>
                             <div className="basic-info-cell">
-                              <div className="member-avatar">
-                                {member.profilePictureUrl ? (
-                                  <img src={getMediaUrl(member.profilePictureUrl)} alt={member.firstName} />
-                                ) : (
-                                  <span className="avatar-initials">
-                                    {member.firstName?.[0] || ''}{member.lastName?.[0] || ''}
-                                  </span>
-                                )}
-                              </div>
+                              <Avatar
+                                src={member.profilePictureUrl ? getMediaUrl(member.profilePictureUrl) : undefined}
+                                alt={member.firstName}
+                                fallback={`${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`}
+                                size="md"
+                                className="member-avatar"
+                              />
                               <div className="name-email-wrap">
                                 <span className="member-full-name">{member.firstName} {member.lastName}</span>
                                 <span className="member-email">{member.email || member.memberId}</span>
                               </div>
                             </div>
-                          </td>
+                          </TableCell>
 
                           {/* Phone */}
-                          <td>
+                          <TableCell>
                             <span className="cell-phone">{member.phoneNumber || '—'}</span>
-                          </td>
+                          </TableCell>
 
                           {/* City / Address */}
-                          <td>
+                          <TableCell>
                             <span className="cell-city">{member.address || 'Main Campus'}</span>
-                          </td>
+                          </TableCell>
 
                           {/* Joined Date */}
-                          <td>
+                          <TableCell>
                             <span className="cell-date">
                               {member.dateJoined 
                                 ? new Date(member.dateJoined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -450,17 +440,17 @@ export function MembersDirectoryPage() {
                                   ? new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                                   : '—'}
                             </span>
-                          </td>
+                          </TableCell>
 
                           {/* Status Badge */}
-                          <td>
+                          <TableCell>
                             <span className={`status-pill status-${member.membershipStatus?.toLowerCase() || 'active'}`}>
                               {member.membershipStatus || 'ACTIVE'}
                             </span>
-                          </td>
+                          </TableCell>
 
                           {/* Tabler Action Buttons */}
-                          <td className="col-actions" onClick={(e) => e.stopPropagation()}>
+                          <TableCell className="col-actions" onClick={(e) => e.stopPropagation()}>
                             <div className="table-actions-group">
                               <button 
                                 className="btn-table-action"
@@ -488,12 +478,12 @@ export function MembersDirectoryPage() {
                                 </button>
                               )}
                             </div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
 
               {/* Table Pagination */}

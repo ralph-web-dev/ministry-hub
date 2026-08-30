@@ -1,0 +1,49 @@
+.ui-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  .ui-select {
+    appearance: none;
+    background-color: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: 9px;
+    padding: 8px 32px 8px 12px;
+    height: 38px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-color);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+
+    &:hover {
+      border-color: #cbd5e1;
+    }
+
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+  }
+
+  .select-icon {
+    position: absolute;
+    right: 12px;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+  }
+
+  &.error {
+    .ui-select {
+      border-color: #ef4444;
+      
+      &:focus {
+        box-shadow: 0 0 0 1px #ef4444;
+      }
+    }
+  }
+}

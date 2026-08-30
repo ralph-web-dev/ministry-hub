@@ -33,3 +33,53 @@ export type CreateMemberInput = z.infer<typeof createMemberSchema>;
 
 export const updateMemberSchema = createMemberSchema.partial();
 export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;
+
+export const attendanceStatusEnum = z.enum(['PRESENT', 'ABSENT', 'EXCUSED']);
+export const attendanceTypeEnum = z.enum([
+  'SUNDAY_WORSHIP',
+  'MIDWEEK_SERVICE',
+  'SPECIAL_EVENT',
+  'YOUTH_FELLOWSHIP',
+  'OUTREACH',
+  'OTHER',
+]);
+
+export const recordAttendanceSchema = z.object({
+  memberId: z.string().uuid('Invalid member ID'),
+  attendanceDate: z.string().min(1, 'Attendance date is required'),
+  attendanceType: attendanceTypeEnum.default('SUNDAY_WORSHIP'),
+  status: attendanceStatusEnum.default('PRESENT'),
+  eventId: z.string().uuid().optional().nullable(),
+  notes: z.string().trim().max(500, 'Notes cannot exceed 500 characters').optional().nullable(),
+});
+export type RecordAttendanceInput = z.infer<typeof recordAttendanceSchema>;
+
+export const bulkAttendanceItemSchema = z.object({
+  memberId: z.string().uuid('Invalid member ID'),
+  status: attendanceStatusEnum,
+  notes: z.string().trim().max(500).optional().nullable(),
+});
+export type BulkAttendanceItemInput = z.infer<typeof bulkAttendanceItemSchema>;
+
+export const bulkAttendanceSchema = z.object({
+  attendanceDate: z.string().min(1, 'Attendance date is required'),
+  attendanceType: attendanceTypeEnum.default('SUNDAY_WORSHIP'),
+  eventId: z.string().uuid().optional().nullable(),
+  records: z.array(bulkAttendanceItemSchema).min(1, 'At least one attendance record is required'),
+});
+export type BulkAttendanceInput = z.infer<typeof bulkAttendanceSchema>;
+
+export const attendanceFilterSchema = z.object({
+  date: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  attendanceType: attendanceTypeEnum.optional(),
+  status: attendanceStatusEnum.optional(),
+  memberId: z.string().uuid().optional(),
+  search: z.string().optional(),
+  eventId: z.string().uuid().optional(),
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().optional(),
+});
+export type AttendanceFilterInput = z.infer<typeof attendanceFilterSchema>;
+

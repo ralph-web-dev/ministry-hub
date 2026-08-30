@@ -25,6 +25,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
 
     const checkAuth = async () => {
+      // Small artificial delay to prevent the loading screen from flashing too quickly
+      await new Promise(resolve => setTimeout(resolve, 800));
+
       const storedToken = localStorage.getItem('ministryhub_token');
       if (!storedToken) {
         setUser(null);

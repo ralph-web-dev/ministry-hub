@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/client/index.js';
 import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
+
+
 
 async function main() {
   // Hash the password
